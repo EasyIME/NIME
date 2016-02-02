@@ -4,18 +4,25 @@ let pipe = require('../lib/pipe');
 
 console.log('Wait Connect');
 
-let ref_pipe = pipe.connect();
-
-console.log('Wait Read');
-
-pipe.read(ref_pipe, (err, data) => {
+pipe.connect((err, ref_pipe) => {
   if (err) {
-    console.log(err);
-  } else {
-    console.log(data);
+    throw err;
   }
+
+  console.log('Wait Read');
+
+  pipe.read(ref_pipe, (err, data) => {
+    if (err) {
+      console.log(err);
+    }
+
+    console.log(data);
+
+    pipe.close(ref_pipe, (err) => {
+      if (err) {
+        throw err;
+      }
+      console.log('Closed');
+    });
+  });
 });
-
-pipe.close(ref_pipe);
-
-console.log('Closed');
