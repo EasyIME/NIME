@@ -2,6 +2,7 @@
 
 let pipe = require('../lib/pipe');
 let EventEmitter = require('events');
+let textManager = require('./textManager');
 
 const SUCCESS = 0;
 const ERROR_MORE_DATA = 234;
@@ -16,6 +17,7 @@ class NIMESocket extends EventEmitter {
     this.data = "";
     this.msg = {};
     this.server = server;
+    this.service = textManager.createTextService(this);
   }
 
   read() {
@@ -28,18 +30,10 @@ class NIMESocket extends EventEmitter {
           this.data += data;
           this.msg = JSON.parse(this.data);
           this.data = "";
-          this.emit('data', err, this.msg);
 
-          // Pretend success reply
-          let reply = {
-            'success': true,
-            'seqNum': this.msg['seqNum']
-          };
-
-          this.write(reply);
-
+          this.emit('data', this.msg);
+          this.service.handleRequest(this.msg);
           this.read();
-
           break;
 
         case ERROR_MORE_DATA:
@@ -58,9 +52,9 @@ class NIMESocket extends EventEmitter {
     });
   }
 
-  write(reply) {
-    console.log(`Write Data: ${reply}`);
-    pipe.write(this.ref, reply, (err, len) => {
+  write(response) {
+    console.log(`Write Data: ${response}`);
+    pipe.write(this.ref, response, (err, len) => {
       this.emit('drain', len);
     });
   }
@@ -100,7 +94,8 @@ class NIMEServer extends EventEmitter {
 
       this.addConnection(socket);
 
-      this.emit('connection', socket);
+      // Pass TextService for user define key event
+      this.emit('connection', socket.service, socket);
 
       // Start read data
       socket.read();

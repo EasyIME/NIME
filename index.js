@@ -4,12 +4,25 @@ let NIME = require('./src/server');
 
 let server = NIME.createServer();
 
-server.on('connection', (socket) => {
+server.on('connection', (service, socket) => {
 
-  socket.on('data', (err, data) => {
-    if (err) {
-      console.log(err);
-    }
+  service.on('end', (msg, state) => {
+    console.log(`Message: ${JSON.stringify(msg)}`);
+    console.log(`State: ${JSON.stringify(state)}`);
+
+    let response = {
+      'success': true,
+      'seqNum': msg['seqNum']
+    };
+
+    service.write(response);
+  });
+
+  service.on('init', (msg, state) => {
+    state['test'] = 1;
+  });
+
+  socket.on('data', (data) => {
     console.log(data);
   });
 
