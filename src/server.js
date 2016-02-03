@@ -27,11 +27,19 @@ class NIMESocket extends EventEmitter {
         case SUCCESS:
           this.data += data;
           this.msg = JSON.parse(this.data);
+          this.data = "";
           this.emit('data', err, this.msg);
-          // this.read();
 
-          // For testing  prevent block;
-          this.close();
+          // Pretend success reply
+          let reply = {
+            'success': true,
+            'seqNum': this.msg['seqNum']
+          };
+
+          this.write(reply);
+
+          this.read();
+
           break;
 
         case ERROR_MORE_DATA:
@@ -50,13 +58,16 @@ class NIMESocket extends EventEmitter {
     });
   }
 
-  write() {
-
+  write(reply) {
+    console.log(`Write Data: ${reply}`);
+    pipe.write(this.ref, reply, (err, len) => {
+      this.emit('drain', len);
+    });
   }
 
   close() {
     pipe.close(this.ref, (err) => {
-      this.emit('close', err);
+      this.emit('end', err);
 
       this.server.deleteConnection(this);
     })

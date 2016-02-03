@@ -13,6 +13,10 @@ server.on('connection', (socket) => {
     console.log(data);
   });
 
+  socket.on('drain', (len) => {
+    console.log(`Write ${len} data`);
+  })
+
   console.log(`Connect: ${server.connections.length}`);
 
 });
