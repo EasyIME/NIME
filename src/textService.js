@@ -52,6 +52,7 @@ class TextService extends EventEmitter {
   }
 }
 
+
 module.exports = {
   createTextService(socket) {
     return new TextService(socket);

@@ -1,8 +1,8 @@
 "use strict";
 
-let NIME = require('./src/server');
+let nimeServer = require('./src/nimeServer');
 
-let server = NIME.createServer();
+let server = nimeServer.createServer();
 
 server.on('connection', (service, socket) => {
 
