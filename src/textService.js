@@ -7,8 +7,10 @@ let path = require('path');
 let CONFIG_PATH = path.join(process.cwd(), 'ime.json');
 
 let KeyEvent = [
-  'filterKeyDown', 'onKeyDown',
-  'filterKeyUp', 'onKeyUp',
+  'filterKeyDown',
+  'filterKeyUp',
+  'onKeyDown',
+  'onKeyUp',
   'onPreservedKey',
   'onCommand',
   'onCompartmentChanged',
@@ -132,9 +134,9 @@ class TextService extends EventEmitter {
         // If guid is not match, then just return fail and ignore key event.
         if (!this.open) {
           this.writeFail(msg['seqNum']);
-          return;
+        } else {
+          this.emit(method, msg, this.setting, this.state);
         }
-        this.emit(method, msg, this.setting, this.state);
     }
   }
 
