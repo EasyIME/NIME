@@ -55,6 +55,8 @@ class TextService extends EventEmitter {
       console.log('onLangProfileActivated');
       if (setting['guid'] === msg['guid']) {
         this.open = true;
+      } else {
+        this.open = false;
       }
       this.emit('end', msg, setting, state);
     });
@@ -63,9 +65,6 @@ class TextService extends EventEmitter {
   registerLangProfileDeactivated() {
     this.on('onLangProfileDeactivated', (msg, setting, state) => {
       console.log('onLangProfileDeactivated');
-      if (setting['guid'] === msg['guid']) {
-        this.open = false;
-      }
       this.emit('end', msg, setting, state);
     });
   }
