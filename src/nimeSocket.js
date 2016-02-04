@@ -52,7 +52,7 @@ class NIMESocket extends EventEmitter {
   }
 
   write(response) {
-    console.log(`Write Data: ${response}`);
+    console.log(`Write Data: ${JSON.stringify(response)}`);
     pipe.write(this.ref, response, (err, len) => {
       this.emit('drain', len);
     });

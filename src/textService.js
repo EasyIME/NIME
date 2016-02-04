@@ -6,6 +6,16 @@ let path = require('path');
 
 let CONFIG_PATH = path.join(process.cwd(), 'ime.json');
 
+let KeyEvent = [
+  'filterKeyDown', 'onKeyDown',
+  'filterKeyUp', 'onKeyUp',
+  'onPreservedKey',
+  'onCommand',
+  'onCompartmentChanged',
+  'onKeyboardStatusChanged',
+  'onCompositionTerminated'
+];
+
 
 class TextService extends EventEmitter {
   constructor(socket) {
@@ -29,8 +39,19 @@ class TextService extends EventEmitter {
     this.env['isConsole'] = msg['isConsole'];
   }
 
+  onActivate() {
+    // initialize process
+    this.registerLangProfileActivated();
+    this.registerLangProfileDeactivated();
+    this.registerDeactivate();
+
+    // key event
+    this.registerKeyEvent();
+    this.registerEndEvent();
+  }
+
   registerLangProfileActivated() {
-    this.once('onLangProfileActivated', (msg, setting, state) => {
+    this.on('onLangProfileActivated', (msg, setting, state) => {
       console.log('onLangProfileActivated');
       if (setting['guid'] === msg['guid']) {
         this.open = true;
@@ -40,7 +61,7 @@ class TextService extends EventEmitter {
   }
 
   registerLangProfileDeactivated() {
-    this.once('onLangProfileDeactivated', (msg, setting, state) => {
+    this.on('onLangProfileDeactivated', (msg, setting, state) => {
       console.log('onLangProfileDeactivated');
       if (setting['guid'] === msg['guid']) {
         this.open = false;
@@ -50,8 +71,37 @@ class TextService extends EventEmitter {
   }
 
   registerDeactivate() {
-    this.once('onDeactivate', (msg, setting, state) => {
+    this.on('onDeactivate', (msg, setting, state) => {
       this.emit('end', msg, setting, state, true);
+    });
+  }
+
+  registerKeyEvent(method) {
+    KeyEvent.forEach((method) => {
+      // Emit end event after all incoming event
+      this.on(method, (msg, setting, state) => {
+        console.log(`TextService ${method}`);
+        this.emit('end', msg, setting, state);
+      });
+    });
+  }
+
+  registerEndEvent() {
+    // Listen the end of event for setting response
+    this.on('end', (msg, setting, state, close) => {
+      console.log('TextService end ' + close);
+
+      if (close) {
+        this.close();
+        return;
+      }
+
+      if (!this.handle) {
+        console.log(`Message: ${JSON.stringify(msg)}`);
+        console.log(`State: ${JSON.stringify(state)}`);
+
+        this.writeSuccess(msg['seqNum']);
+      }
     });
   }
 
@@ -68,58 +118,25 @@ class TextService extends EventEmitter {
         this.writeSuccess(msg['seqNum']);
         return;
 
-      case 'onDeactivate':
-        this.registerDeactivate();
-        break;
-
-      case 'onLangProfileActivated':
-        this.registerLangProfileActivated();
-        break;
-
-      case 'onLangProfileDeactivated':
-        this.registerLangProfileDeactivated();
-        break;
-
       case 'onActivate':
+        this.onActivate();
+        this.writeSuccess(msg['seqNum']);
+        return;
+
+      case 'onDeactivate':
+      case 'onLangProfileActivated':
+      case 'onLangProfileDeactivated':
+        this.emit(method, msg, this.setting, this.state);
+        break;
+
       default:
         // If guid is not match, then just return fail and ignore key event.
         if (!this.open) {
           this.writeFail(msg['seqNum']);
           return;
         }
-        this.registerKeyEvent(method);
+        this.emit(method, msg, this.setting, this.state);
     }
-
-    this.registerEndEvent();
-
-    this.emit(method, msg, this.setting, this.state);
-  }
-
-  registerKeyEvent(method) {
-    // Emit end event after all incoming event
-    this.once(method, (msg, setting, state) => {
-      console.log(`TextService ${method}`);
-      this.emit('end', msg, setting, state);
-    });
-  }
-
-  registerEndEvent() {
-    // Listen the end of event for setting response
-    this.once('end', (msg, setting, state, close) => {
-      console.log('TextService end ' + close);
-
-      if (close) {
-        this.close();
-        return;
-      }
-
-      if (!this.handle) {
-        console.log(`Message: ${JSON.stringify(msg)}`);
-        console.log(`State: ${JSON.stringify(state)}`);
-
-        this.writeSuccess(msg['seqNum']);
-      }
-    });
   }
 
   writeSuccess(seqNum, response) {
@@ -145,7 +162,6 @@ class TextService extends EventEmitter {
       this.handle = true;
       this.socket.write(response);
     }
-    this.removeAllListeners();
   }
 
   close() {
