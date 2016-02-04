@@ -60,8 +60,9 @@ class NIMESocket extends EventEmitter {
 
   close() {
     pipe.close(this.ref, (err) => {
-      this.emit('end', err);
 
+      this.service = null;
+      this.emit('end', err);
       this.server.deleteConnection(this);
     });
   }

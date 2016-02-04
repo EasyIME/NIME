@@ -18,12 +18,13 @@ server.on('connection', (service, socket) => {
     service.write(response);
   });
 
-  service.on('init', (msg, state) => {
+  service.on('onKeyDown', (msg, setting, state) => {
+    console.log('KeyKeyKeyKeyKeyKeyKeyKeyKeyKey');
     state['test'] = 1;
   });
 
   socket.on('data', (data) => {
-    console.log(data);
+    // console.log(data);
   });
 
   socket.on('drain', (len) => {
