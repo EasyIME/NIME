@@ -17,6 +17,7 @@ Please install PIME >= 0.03 version
 #### Node
 
 - Node v4.x 32 bit (Must be 32 bit.)
+- Install [node-gyp](https://github.com/nodejs/node-gyp) dependecise for c binding through [node-ffi](https://github.com/node-ffi/node-ffi). Please see [node-gyp document](https://github.com/nodejs/node-gyp#installation) to setup your environment.
 
 
 ## Development
