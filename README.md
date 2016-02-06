@@ -6,7 +6,7 @@ Implement input methods easily for Windows with nodejs. It is another [PIME](htt
 
 #### PIME
 
-Install PIME first. There are two way to install.
+Install PIME first. There are two ways to install.
 
 1. Install via [installer](https://github.com/EasyIME/PIME/releases)
 2. Build the PIME source code and register `PIMETextService.dll`. Please see [this](https://github.com/EasyIME/PIME#install) for more detail
