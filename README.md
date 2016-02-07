@@ -23,7 +23,51 @@ Please install PIME >= 0.03 version
 ## Development
 
 - npm i
-- npm start
+- `cd ./example` and run `node index.js`
+
+
+## Usage
+
+> I didn't push into npm yet. This is WIP project. You can see example in `./example`.
+
+`ime.json` is to configure IME.
+
+The usage will look like following. If you have any suggestion, welcome feedback.
+```js
+'use strict';
+
+let NIME = require('../index');
+
+let server = NIME.createServer();
+
+// Listening new connection
+server.on('connection', (service) => {
+
+  // Listening key event, You can see ../src/textServer.js to see key event
+  service.on('filterKeyDown', (msg, setting, state) => {
+
+    console.log('Custom Listener Message: ', msg);
+
+    // You can custom your response
+    let response = {
+      'success': true,
+      'seqNum': msg['seqNum']
+    };
+
+    // Reply to IME client
+    service.write(response);
+  });
+
+  // You can also listen end event that would emit after key event finish
+  service.on('end', (msg, setting, state) => {
+    console.log('Event finish');
+  });
+
+});
+
+// Start server listening
+server.listen();
+```
 
 
 ## License
