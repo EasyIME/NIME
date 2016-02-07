@@ -144,7 +144,7 @@ class TextService extends EventEmitter {
     if (!response) {
       response = {};
     }
-    response['response'] = true;
+    response['success'] = true;
     response['seqNum'] = seqNum;
     this.write(response);
   }
@@ -153,7 +153,7 @@ class TextService extends EventEmitter {
     if (!response) {
       response = {};
     }
-    response['response'] = false;
+    response['success'] = false;
     response['seqNum'] = seqNum;
     this.write(response);
   }
