@@ -82,9 +82,9 @@ server.on('connection', (service) => {
       switch (keyCode) {
 
         case VK_DOWN:  // Show Candidate List
-          response['showCandidates'] = true;
-          response['candidateList'] = candidateList;
           showCandidates = true;
+          response['showCandidates'] = showCandidates;
+          response['candidateList'] = candidateList;
           break;
 
         case VK_RETURN:  // Comfirm String
@@ -98,8 +98,11 @@ server.on('connection', (service) => {
 
         case VK_BACK:  // Delete compositionString
           if (compositionString !== '') {
+            let cursor = compositionCursor;
             compositionCursor -= 1;
-            response['compositionString'] = compositionString.substring(0, compositionCursor);
+            compositionString = compositionString.substring(0, compositionCursor) + compositionString.substring(cursor);
+            response['compositionString'] = compositionString;
+            response['compositionCursor'] = compositionCursor;
           }
           break;
 
