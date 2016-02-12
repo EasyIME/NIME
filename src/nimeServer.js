@@ -6,6 +6,7 @@ let nimeSocket = require('./nimeSocket');
 
 
 class NIMEServer extends EventEmitter {
+
   constructor() {
     super();
     this.connections = [];

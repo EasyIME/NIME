@@ -10,6 +10,7 @@ const ERROR_IO_PENDING = 997;
 
 
 class NIMESocket extends EventEmitter {
+
   constructor(ref, server) {
     super();
     this.ref = ref;

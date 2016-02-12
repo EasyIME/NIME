@@ -20,6 +20,7 @@ let KeyEvent = [
 
 
 class TextService extends EventEmitter {
+
   constructor(socket) {
     super()
     this.socket = socket;
