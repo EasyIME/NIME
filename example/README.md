@@ -15,6 +15,4 @@ NIME is under MIT License.
 
 ## Run
 
-It is WIP example.
-
 - `node index.js`
