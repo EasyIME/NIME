@@ -111,7 +111,7 @@ server.on('connection', (service) => {
           break;
 
         case VK_RIGHT:  // Move cursor right
-          if (compositionCursor <= compositionString.length) {
+          if (compositionCursor < compositionString.length) {
             compositionCursor += 1;
             response['compositionCursor'] = compositionCursor;
           }
