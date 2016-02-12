@@ -121,7 +121,7 @@ server.on('connection', (service) => {
           break;
 
         default:
-          compositionString += '喵';
+          compositionString = compositionString.substring(0, compositionCursor) + '喵' + compositionString.substring(compositionCursor);
           compositionCursor += 1;
 
           response['compositionString'] = compositionString;
