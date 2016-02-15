@@ -54,43 +54,43 @@ class TextService extends EventEmitter {
   }
 
   registerLangProfileActivated() {
-    this.on('onLangProfileActivated', (msg, setting, state) => {
+    this.on('onLangProfileActivated', (msg) => {
       console.log('onLangProfileActivated');
-      if (setting['guid'] === msg['guid']) {
+      if (this.setting['guid'] === msg['guid']) {
         this.open = true;
       } else {
         this.open = false;
       }
-      this.emit('end', msg, setting, state);
+      this.emit('end', msg);
     });
   }
 
   registerLangProfileDeactivated() {
-    this.on('onLangProfileDeactivated', (msg, setting, state) => {
+    this.on('onLangProfileDeactivated', (msg) => {
       console.log('onLangProfileDeactivated');
-      this.emit('end', msg, setting, state);
+      this.emit('end', msg);
     });
   }
 
   registerDeactivate() {
-    this.on('onDeactivate', (msg, setting, state) => {
-      this.emit('end', msg, setting, state, true);
+    this.on('onDeactivate', (msg) => {
+      this.emit('end', msg, true);
     });
   }
 
   registerKeyEvent(method) {
     KeyEvent.forEach((method) => {
       // Emit end event after all incoming event
-      this.on(method, (msg, setting, state) => {
+      this.on(method, (msg) => {
         console.log(`TextService ${method}`);
-        this.emit('end', msg, setting, state);
+        this.emit('end', msg);
       });
     });
   }
 
   registerEndEvent() {
     // Listen the end of event for setting response
-    this.on('end', (msg, setting, state, close) => {
+    this.on('end', (msg, close) => {
       console.log('TextService end ' + close);
 
       if (close) {
@@ -100,7 +100,6 @@ class TextService extends EventEmitter {
 
       if (!this.handle) {
         console.log(`Message: ${JSON.stringify(msg)}`);
-        console.log(`State: ${JSON.stringify(state)}`);
 
         this.writeSuccess(msg['seqNum']);
       }
@@ -128,7 +127,7 @@ class TextService extends EventEmitter {
       case 'onDeactivate':
       case 'onLangProfileActivated':
       case 'onLangProfileDeactivated':
-        this.emit(method, msg, this.setting, this.state);
+        this.emit(method, msg);
         break;
 
       default:
@@ -136,7 +135,7 @@ class TextService extends EventEmitter {
         if (!this.open) {
           this.writeFail(msg['seqNum']);
         } else {
-          this.emit(method, msg, this.setting, this.state);
+          this.emit(method, msg);
         }
     }
   }

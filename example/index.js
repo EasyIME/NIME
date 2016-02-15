@@ -23,7 +23,7 @@ server.on('connection', (service) => {
   let compositionCursor = 0;
 
   // Listening key event, You can see ../src/textServer.js to see key event
-  service.on('filterKeyDown', (msg, setting, state) => {
+  service.on('filterKeyDown', (msg) => {
 
     console.log('Custom filter Key Down Message:', JSON.stringify(msg));
 
@@ -44,7 +44,7 @@ server.on('connection', (service) => {
     service.writeSuccess(seqNum, response);
   });
 
-  service.on('onKeyDown', (msg, setting, state) => {
+  service.on('onKeyDown', (msg) => {
 
     console.log('Custom on Key Down Message: ', JSON.stringify(msg));
 
@@ -135,7 +135,7 @@ server.on('connection', (service) => {
 
   });
 
-  service.on('onCompositionTerminated', (msg, setting, state) => {
+  service.on('onCompositionTerminated', (msg) => {
 
     let seqNum = msg['seqNum'];
 
@@ -147,7 +147,7 @@ server.on('connection', (service) => {
   });
 
   // You can also listen end event that would emit after key event finish
-  service.on('end', (msg, setting, state) => {
+  service.on('end', (msg) => {
     console.log('Event finish');
   });
 
