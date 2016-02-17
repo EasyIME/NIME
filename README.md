@@ -70,6 +70,12 @@ server.listen();
 ```
 
 
+## Reference
+
+- [PIME](https://github.com/EasyIME/PIME)
+- [Virtual-Key Codes](https://msdn.microsoft.com/zh-tw/library/windows/desktop/dd375731%28v=vs.85%29.aspx)
+
+
 ## License
 
 The MIT License (MIT)

@@ -1,17 +1,9 @@
 'use strict';
 
 let NIME = require('../index');
+let KEYCODE = require('../lib/keyCodes');
 
 let server = NIME.createServer();
-
-// Key Code
-const VK_BACK   = 0x08;
-const VK_RETURN = 0x0D;
-const VK_LEFT   = 0x25;
-const VK_UP     = 0x26;
-const VK_RIGHT  = 0x27;
-const VK_DOWN   = 0x28;
-const VK_ESCAPE = 0x1B;
 
 // Listening new connection
 server.on('connection', (service) => {
@@ -36,7 +28,7 @@ server.on('connection', (service) => {
     };
 
     // Handle delete event, just pass to normal handle
-    if (compositionString === '' && (keyCode === VK_RETURN || keyCode === VK_BACK)) {
+    if (compositionString === '' && (keyCode === KEYCODE.VK_RETURN || keyCode === KEYCODE.VK_BACK)) {
       response['return'] = false;
     }
 
@@ -59,7 +51,7 @@ server.on('connection', (service) => {
     // Select the candidate
     if (showCandidates) {
 
-      if (keyCode === VK_UP || keyCode === VK_ESCAPE) {
+      if (keyCode === KEYCODE.VK_UP || keyCode === KEYCODE.VK_ESCAPE) {
         response['showCandidates'] = false;
         showCandidates = false;
 
@@ -81,13 +73,13 @@ server.on('connection', (service) => {
     } else {
       switch (keyCode) {
 
-        case VK_DOWN:  // Show Candidate List
+        case KEYCODE.VK_DOWN:  // Show Candidate List
           showCandidates = true;
           response['showCandidates'] = showCandidates;
           response['candidateList'] = candidateList;
           break;
 
-        case VK_RETURN:  // Comfirm String
+        case KEYCODE.VK_RETURN:  // Comfirm String
           response['commitString'] = compositionString;
           response['compositionString'] = '';
 
@@ -96,7 +88,7 @@ server.on('connection', (service) => {
           compositionCursor = 0;
           break;
 
-        case VK_BACK:  // Delete compositionString
+        case KEYCODE.VK_BACK:  // Delete compositionString
           if (compositionString !== '') {
             let cursor = compositionCursor;
             compositionCursor -= 1;
@@ -106,14 +98,14 @@ server.on('connection', (service) => {
           }
           break;
 
-        case VK_LEFT:  // Move cursor left
+        case KEYCODE.VK_LEFT:  // Move cursor left
           if (compositionCursor > 0) {
             compositionCursor -= 1;
             response['compositionCursor'] = compositionCursor;
           }
           break;
 
-        case VK_RIGHT:  // Move cursor right
+        case KEYCODE.VK_RIGHT:  // Move cursor right
           if (compositionCursor < compositionString.length) {
             compositionCursor += 1;
             response['compositionCursor'] = compositionCursor;
