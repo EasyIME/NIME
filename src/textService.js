@@ -4,19 +4,24 @@ let EventEmitter = require('events');
 let fs = require('fs');
 let path = require('path');
 
-let CONFIG_PATH = path.join(process.cwd(), 'ime.json');
+let keyHandler = require('./keyHandler');
 
-let KeyEvent = [
+const CONFIG_PATH = path.join(process.cwd(), 'ime.json');
+
+const NOREMAL_KEY_EVENT = [
   'filterKeyDown',
   'filterKeyUp',
   'onKeyDown',
-  'onKeyUp',
+  'onKeyUp'
+];
+
+const SPECIAL_KEY_EVENT = [
   'onPreservedKey',
   'onCommand',
   'onCompartmentChanged',
   'onKeyboardStatusChanged',
   'onCompositionTerminated'
-];
+]
 
 
 class TextService extends EventEmitter {
@@ -24,6 +29,7 @@ class TextService extends EventEmitter {
   constructor(socket) {
     super()
     this.socket = socket;
+    this.keyHandler = keyHandler.createKeyHandler();
     this.state = {};
     this.env = {};
     this.setting = {};
@@ -78,8 +84,17 @@ class TextService extends EventEmitter {
     });
   }
 
-  registerKeyEvent(method) {
-    KeyEvent.forEach((method) => {
+  registerKeyEvent() {
+
+    NOREMAL_KEY_EVENT.forEach((method) => {
+      // Emit end event after all incoming event
+      this.on(method, (msg, keyHandler) => {
+        console.log(`TextService ${method}`);
+        this.emit('end', msg);
+      });
+    });
+
+    SPECIAL_KEY_EVENT.forEach((method) => {
       // Emit end event after all incoming event
       this.on(method, (msg) => {
         console.log(`TextService ${method}`);
@@ -135,7 +150,14 @@ class TextService extends EventEmitter {
         if (!this.open) {
           this.writeFail(msg['seqNum']);
         } else {
-          this.emit(method, msg);
+
+          if (NOREMAL_KEY_EVENT.indexOf(method) >= 0) {
+            this.keyHandler.setConfig(msg);
+            this.emit(method, msg, this.keyHandler);
+
+          } else if (SPECIAL_KEY_EVENT.indexOf(method) >= 0) {
+            this.emit(method, msg);
+          }
         }
     }
   }

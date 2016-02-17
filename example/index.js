@@ -15,11 +15,11 @@ server.on('connection', (service) => {
   let compositionCursor = 0;
 
   // Listening key event, You can see ../src/textServer.js to see key event
-  service.on('filterKeyDown', (msg) => {
+  service.on('filterKeyDown', (msg, keyHandler) => {
 
     console.log('Custom filter Key Down Message:', JSON.stringify(msg));
 
-    let keyCode = msg['keyCode'];
+    let keyCode = keyHandler.keyCode;
     let seqNum = msg['seqNum'];
 
     // You can custom your response
@@ -28,7 +28,10 @@ server.on('connection', (service) => {
     };
 
     // Handle delete event, just pass to normal handle
-    if (compositionString === '' && (keyCode === KEYCODE.VK_RETURN || keyCode === KEYCODE.VK_BACK)) {
+    if (compositionString === '' && (
+        keyCode === KEYCODE.VK_RETURN || keyCode === KEYCODE.VK_BACK ||
+        keyCode === KEYCODE.VK_LEFT || keyCode === KEYCODE.VK_UP ||
+        keyCode === KEYCODE.VK_DOWN || keyCode === KEYCODE.VK_RIGHT)) {
       response['return'] = false;
     }
 
@@ -36,11 +39,11 @@ server.on('connection', (service) => {
     service.writeSuccess(seqNum, response);
   });
 
-  service.on('onKeyDown', (msg) => {
+  service.on('onKeyDown', (msg, keyHandler) => {
 
     console.log('Custom on Key Down Message: ', JSON.stringify(msg));
 
-    let keyCode = msg['keyCode'];
+    let keyCode = keyHandler.keyCode;
     let seqNum = msg['seqNum'];
 
     // You can custom your response
