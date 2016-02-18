@@ -23,12 +23,13 @@ Please install PIME >= 0.03 version
 ## Development
 
 - npm i
-- `cd ./example` and run `node index.js`
+- npm start
 
+It would start example server to help develop core library.
 
 ## Usage
 
-> I didn't push into npm yet. This is WIP project. You can see example in `./example`.
+> This is WIP project. You can see example in `./example`.
 
 `ime.json` is to configure IME.
 
@@ -44,9 +45,10 @@ let server = NIME.createServer();
 server.on('connection', (service) => {
 
   // Listening key event, You can see ../src/textServer.js to see key event
-  service.on('filterKeyDown', (msg, setting, state) => {
+  service.on('filterKeyDown', (msg, keyHandler) => {
 
     console.log('Custom Listener Message: ', msg);
+    console.log('Key Code: ', keyHandler.keyCode);
 
     // You can custom your response
     let response = {
@@ -59,7 +61,7 @@ server.on('connection', (service) => {
   });
 
   // You can also listen end event that would emit after key event finish
-  service.on('end', (msg, setting, state) => {
+  service.on('end', (msg) => {
     console.log('Event finish');
   });
 
