@@ -1,7 +1,5 @@
 'use strict';
 
-let KEYMAP = require('./keyMap');
-
 class KeyHandler {
 
   constructor(msg) {
