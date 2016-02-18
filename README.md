@@ -29,6 +29,10 @@ It would start example server to help develop core library.
 
 ## Usage
 
+```
+npm install nime
+```
+
 > This is WIP project. You can see example in `./example`.
 
 `ime.json` is to configure IME.
@@ -37,7 +41,7 @@ The usage will look like following. If you have any suggestion, welcome feedback
 ```js
 'use strict';
 
-let NIME = require('../index');
+let NIME = require('nime');
 
 let server = NIME.createServer();
 
