@@ -5,6 +5,7 @@ let fs = require('fs');
 let path = require('path');
 
 let keyHandler = require('./keyHandler');
+let LOG = require('./util/logger');
 
 const CONFIG_PATH = path.join(process.cwd(), 'ime.json');
 
@@ -61,7 +62,7 @@ class TextService extends EventEmitter {
 
   registerLangProfileActivated() {
     this.on('onLangProfileActivated', (msg) => {
-      console.log('onLangProfileActivated');
+      LOG.info('onLangProfileActivated');
       if (this.setting['guid'] === msg['guid']) {
         this.open = true;
       } else {
@@ -73,7 +74,7 @@ class TextService extends EventEmitter {
 
   registerLangProfileDeactivated() {
     this.on('onLangProfileDeactivated', (msg) => {
-      console.log('onLangProfileDeactivated');
+      LOG.info('onLangProfileDeactivated');
       this.emit('end', msg);
     });
   }
@@ -89,7 +90,7 @@ class TextService extends EventEmitter {
     NOREMAL_KEY_EVENT.forEach((method) => {
       // Emit end event after all incoming event
       this.on(method, (msg, keyHandler) => {
-        console.log(`TextService ${method}`);
+        LOG.info(`TextService ${method}`);
         this.emit('end', msg);
       });
     });
@@ -97,7 +98,7 @@ class TextService extends EventEmitter {
     SPECIAL_KEY_EVENT.forEach((method) => {
       // Emit end event after all incoming event
       this.on(method, (msg) => {
-        console.log(`TextService ${method}`);
+        LOG.info(`TextService ${method}`);
         this.emit('end', msg);
       });
     });
@@ -106,7 +107,7 @@ class TextService extends EventEmitter {
   registerEndEvent() {
     // Listen the end of event for setting response
     this.on('end', (msg, close) => {
-      console.log('TextService end ' + close);
+      LOG.info('TextService end ' + close);
 
       if (close) {
         this.close();
@@ -114,7 +115,7 @@ class TextService extends EventEmitter {
       }
 
       if (!this.handle) {
-        console.log(`Message: ${JSON.stringify(msg)}`);
+        LOG.info(`Message: ${JSON.stringify(msg)}`);
 
         this.writeSuccess(msg['seqNum']);
       }
@@ -123,7 +124,7 @@ class TextService extends EventEmitter {
 
   handleRequest(msg) {
     this.handle = false;
-    // console.log(msg);
+    // LOG.info(msg);
 
     let method = msg['method'];
 

@@ -3,6 +3,7 @@
 let EventEmitter = require('events');
 let pipe = require('../lib/pipe');
 let textService = require('./textService');
+let LOG = require('./util/logger');
 
 const SUCCESS = 0;
 const ERROR_MORE_DATA = 234;
@@ -21,7 +22,7 @@ class NIMESocket extends EventEmitter {
   }
 
   read() {
-    console.log('Wait data');
+    LOG.info('Wait data');
     pipe.read(this.ref, (err, data) => {
 
       switch (err) {
@@ -46,14 +47,14 @@ class NIMESocket extends EventEmitter {
           break;
 
         default:
-          console.log('Socket broken');
+          LOG.info('Socket broken');
           this.close();
       }
     });
   }
 
   write(response) {
-    console.log(`Write Data: ${JSON.stringify(response)}`);
+    LOG.info(`Write Data: ${JSON.stringify(response)}`);
     pipe.write(this.ref, response, (err, len) => {
       this.emit('drain', len);
     });

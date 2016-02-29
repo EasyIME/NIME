@@ -3,6 +3,7 @@
 let EventEmitter = require('events');
 let pipe = require('../lib/pipe');
 let nimeSocket = require('./nimeSocket');
+let LOG = require('./util/logger');
 
 
 class NIMEServer extends EventEmitter {
@@ -21,10 +22,10 @@ class NIMEServer extends EventEmitter {
   }
 
   listen() {
-    console.log('Wait connection');
+    LOG.info('Wait connection');
 
     pipe.connect((err, ref) => {
-      console.log('Connected');
+      LOG.info('Connected');
 
       // Each connection create a socket to handle.
       let socket = nimeSocket.createSocket(ref, this);
