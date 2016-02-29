@@ -1,6 +1,6 @@
 NIME
 =============
-[![Build Status][travis-ci-image]][travis-ci-url]
+[![npm][npm-image]][npm-url] [![Build Status][travis-ci-image]][travis-ci-url]
 
 Implement input methods easily for Windows with nodejs. It is another [PIME](https://github.com/EasyIME/PIME) server side.
 
@@ -106,6 +106,9 @@ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+[npm-image]: https://img.shields.io/npm/v/nime.svg?style=flat-square
+[npm-url]: https://www.npmjs.com/package/nime
 
 [travis-ci-image]: https://img.shields.io/travis/EasyIME/NIME.svg?style=flat-square
 [travis-ci-url]: https://travis-ci.org/EasyIME/NIME
