@@ -11,7 +11,7 @@ describe('Text Service', () => {
 
   beforeEach(() => {
     stubSocket = sinon.createStubInstance(nimeSocket.NIMESocket);
-    service  = textService.createTextService(stubSocket);
+    service    = textService.createTextService(stubSocket);
   });
 
   describe('#registerKeyEvent', () => {

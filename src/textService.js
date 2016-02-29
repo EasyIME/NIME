@@ -1,11 +1,11 @@
 'use strict';
 
 let EventEmitter = require('events');
-let fs = require('fs');
-let path = require('path');
+let fs           = require('fs');
+let path         = require('path');
 
 let keyHandler = require('./keyHandler');
-let LOG = require('./util/logger');
+let LOG        = require('./util/logger');
 
 const CONFIG_PATH = path.join(process.cwd(), 'ime.json');
 
@@ -29,13 +29,13 @@ class TextService extends EventEmitter {
 
   constructor(socket) {
     super()
-    this.socket = socket;
+    this.socket     = socket;
     this.keyHandler = keyHandler.createKeyHandler();
-    this.state = {};
-    this.env = {};
-    this.setting = {};
-    this.handle = false; // Check already write response or not
-    this.open = true;  // Check Service get started
+    this.state      = {};
+    this.env        = {};
+    this.setting    = {};
+    this.handle     = false; // Check already write response or not
+    this.open       = true;  // Check Service get started
   }
 
   init(msg) {
@@ -44,9 +44,9 @@ class TextService extends EventEmitter {
 
     // Store OS env
     this.env['isWindows8Above'] = msg['isWindows8Above'];
-    this.env['isMetroApp'] = msg['isMetroApp'];
-    this.env['isUiLess'] = msg['isUiLess'];
-    this.env['isConsole'] = msg['isConsole'];
+    this.env['isMetroApp']      = msg['isMetroApp'];
+    this.env['isUiLess']        = msg['isUiLess'];
+    this.env['isConsole']       = msg['isConsole'];
   }
 
   onActivate() {
@@ -168,7 +168,7 @@ class TextService extends EventEmitter {
       response = {};
     }
     response['success'] = true;
-    response['seqNum'] = seqNum;
+    response['seqNum']  = seqNum;
     this.write(response);
   }
 
@@ -177,7 +177,7 @@ class TextService extends EventEmitter {
       response = {};
     }
     response['success'] = false;
-    response['seqNum'] = seqNum;
+    response['seqNum']  = seqNum;
     this.write(response);
   }
 

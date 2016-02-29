@@ -1,11 +1,11 @@
 'use strict';
 
 let EventEmitter = require('events');
-let textService = require('./textService');
-let LOG = require('./util/logger');
+let textService  = require('./textService');
+let LOG          = require('./util/logger');
 
-const SUCCESS = 0;
-const ERROR_MORE_DATA = 234;
+const SUCCESS          = 0;
+const ERROR_MORE_DATA  = 234;
 const ERROR_IO_PENDING = 997;
 
 
@@ -13,12 +13,12 @@ class NIMESocket extends EventEmitter {
 
   constructor(ref, server, pipe) {
     super();
-    this.ref = ref;
-    this.data = "";
-    this.msg = {};
-    this.server = server;
+    this.ref     = ref;
+    this.data    = "";
+    this.msg     = {};
+    this.server  = server;
     this.service = textService.createTextService(this);
-    this.pipe = pipe;
+    this.pipe    = pipe;
   }
 
   read() {

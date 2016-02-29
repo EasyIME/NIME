@@ -1,9 +1,9 @@
 'use strict';
 
 let EventEmitter = require('events');
-let pipe = require('../lib/pipe');
-let nimeSocket = require('./nimeSocket');
-let LOG = require('./util/logger');
+let pipe         = require('../lib/pipe');
+let nimeSocket   = require('./nimeSocket');
+let LOG          = require('./util/logger');
 
 
 class NIMEServer extends EventEmitter {
