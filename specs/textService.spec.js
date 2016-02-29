@@ -3,18 +3,17 @@
 let textService = require('../src/textService');
 let sinon       = require('sinon');
 
-describe('Text Service', function () {
+describe('Text Service', () => {
 
   describe('#registerKeyEvent', () => {
 
     let service;
-    let writeStub;
     let onSpy;
 
-    before(function () {
+    before(() => {
       service = textService.createTextService();
       onSpy   = sinon.spy(service, 'on');
-    })
+    });
 
     it('should register key event', () => {
 
@@ -29,8 +28,74 @@ describe('Text Service', function () {
       assert.equal('onCompartmentChanged'   , onSpy.getCall(6).args[0]);
       assert.equal('onKeyboardStatusChanged', onSpy.getCall(7).args[0]);
       assert.equal('onCompositionTerminated', onSpy.getCall(8).args[0]);
-
     });
   });
 
+  describe('#registerLangProfileActivated', () => {
+
+    let service;
+    let onSpy;
+
+    before(() => {
+      service = textService.createTextService();
+      onSpy   = sinon.spy(service, 'on');
+    });
+
+    it('should register onLangProfileActivated event', () => {
+      service.registerLangProfileActivated();
+
+      assert.equal('onLangProfileActivated', onSpy.getCall(0).args[0]);
+    });
+  });
+
+  describe('#registerLangProfileDeactivated', () => {
+
+    let service;
+    let onSpy;
+
+    before(() => {
+      service = textService.createTextService();
+      onSpy   = sinon.spy(service, 'on');
+    });
+
+    it('should register onLangProfileDeactivated event', () => {
+      service.registerLangProfileDeactivated();
+
+      assert.equal('onLangProfileDeactivated', onSpy.getCall(0).args[0]);
+    });
+  });
+
+  describe('#registerDeactivate', () => {
+
+    let service;
+    let onSpy;
+
+    before(() => {
+      service = textService.createTextService();
+      onSpy   = sinon.spy(service, 'on');
+    });
+
+    it('should register onDeactivate event', () => {
+      service.registerDeactivate();
+
+      assert.equal('onDeactivate', onSpy.getCall(0).args[0]);
+    });
+  });
+
+  describe('#registerEndEvent', () => {
+
+    let service;
+    let onSpy;
+
+    before(() => {
+      service = textService.createTextService();
+      onSpy   = sinon.spy(service, 'on');
+    });
+
+    it('should register end event', () => {
+      service.registerEndEvent();
+
+      assert.equal('end', onSpy.getCall(0).args[0]);
+    });
+  });
 });
