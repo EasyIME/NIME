@@ -28,7 +28,7 @@ class NIMEServer extends EventEmitter {
       LOG.info('Connected');
 
       // Each connection create a socket to handle.
-      let socket = nimeSocket.createSocket(ref, this);
+      let socket = nimeSocket.createSocket(ref, this, pipe);
 
       this.addConnection(socket);
 
