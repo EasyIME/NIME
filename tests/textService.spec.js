@@ -6,15 +6,19 @@ let sinon       = require('sinon');
 
 describe('Text Service', () => {
 
+  let service;
+  let stubSocket;
+
+  beforeEach(() => {
+    stubSocket = sinon.createStubInstance(nimeSocket.NIMESocket);
+    service  = textService.createTextService(stubSocket);
+  });
+
   describe('#registerKeyEvent', () => {
 
-    let service;
     let onSpy;
 
-    before(() => {
-      service = textService.createTextService();
-      onSpy   = sinon.spy(service, 'on');
-    });
+    beforeEach(() => onSpy = sinon.spy(service, 'on'));
 
     it('should register key event', () => {
 
@@ -34,13 +38,9 @@ describe('Text Service', () => {
 
   describe('#registerLangProfileActivated', () => {
 
-    let service;
     let onSpy;
 
-    before(() => {
-      service = textService.createTextService();
-      onSpy   = sinon.spy(service, 'on');
-    });
+    beforeEach(() => onSpy = sinon.spy(service, 'on'));
 
     it('should register onLangProfileActivated event', () => {
       service.registerLangProfileActivated();
@@ -51,13 +51,9 @@ describe('Text Service', () => {
 
   describe('#registerLangProfileDeactivated', () => {
 
-    let service;
     let onSpy;
 
-    before(() => {
-      service = textService.createTextService();
-      onSpy   = sinon.spy(service, 'on');
-    });
+    beforeEach(() => onSpy = sinon.spy(service, 'on'));
 
     it('should register onLangProfileDeactivated event', () => {
       service.registerLangProfileDeactivated();
@@ -68,13 +64,9 @@ describe('Text Service', () => {
 
   describe('#registerDeactivate', () => {
 
-    let service;
     let onSpy;
 
-    before(() => {
-      service = textService.createTextService();
-      onSpy   = sinon.spy(service, 'on');
-    });
+    beforeEach(() => onSpy = sinon.spy(service, 'on'));
 
     it('should register onDeactivate event', () => {
       service.registerDeactivate();
@@ -85,13 +77,9 @@ describe('Text Service', () => {
 
   describe('#registerEndEvent', () => {
 
-    let service;
     let onSpy;
 
-    before(() => {
-      service = textService.createTextService();
-      onSpy   = sinon.spy(service, 'on');
-    });
+    beforeEach(() => onSpy = sinon.spy(service, 'on'));
 
     it('should register end event', () => {
       service.registerEndEvent();
@@ -102,13 +90,7 @@ describe('Text Service', () => {
 
   describe('#handleRequest', () => {
 
-    let service;
-    let stubSocket;
-
     beforeEach(() => {
-      stubSocket = sinon.createStubInstance(nimeSocket.NIMESocket);
-      service  = textService.createTextService(stubSocket);
-
       service.onActivate();
       service.setting.guid = '{C5F37DA0-274E-4837-9B7C-9BB79FE85D9D}';
     });
