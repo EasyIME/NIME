@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "cd example && node index.js",
-    "test": "istanbul cover node_modules/mocha/bin/_mocha -- specs --require specs/helpers/chai.js --reporter spec",
+    "test": "istanbul cover node_modules/mocha/bin/_mocha -- tests --require tests/helpers/chai.js --reporter spec",
     "coveralls": "npm test && cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage"
   },
   "author": "Lee <jessy1092@gmail.com>",
