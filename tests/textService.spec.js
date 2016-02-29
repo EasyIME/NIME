@@ -1,6 +1,7 @@
 'use strict';
 
 let textService = require('../src/textService');
+let nimeSocket  = require('../src/nimeSocket');
 let sinon       = require('sinon');
 
 describe('Text Service', () => {
@@ -96,6 +97,40 @@ describe('Text Service', () => {
       service.registerEndEvent();
 
       assert.equal('end', onSpy.getCall(0).args[0]);
+    });
+  });
+
+  describe('#handleRequest', () => {
+
+    let service;
+    let stubSocket;
+
+    beforeEach(() => {
+      stubSocket = sinon.createStubInstance(nimeSocket.NIMESocket);
+      service  = textService.createTextService(stubSocket);
+
+      service.onActivate();
+      service.setting.guid = '{C5F37DA0-274E-4837-9B7C-9BB79FE85D9D}';
+    });
+
+    context('when LangProfileActivated with guid match', () => {
+      it('should open the service', () => {
+        let fakeMsg = {"seqNum": 12841, "method": "onLangProfileActivated", "guid": "{C5F37DA0-274E-4837-9B7C-9BB79FE85D9D}"}
+
+        service.handleRequest(fakeMsg);
+
+        assert.equal(true, service.open);
+      });
+    });
+
+    context('when LangProfileActivated with guid not match', () => {
+      it('should close the service', () => {
+        let fakeMsg = {"seqNum": 12841, "method": "onLangProfileActivated", "guid": "{123}"}
+
+        service.handleRequest(fakeMsg);
+
+        assert.equal(false, service.open);
+      });
     });
   });
 });

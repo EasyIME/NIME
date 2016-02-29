@@ -73,5 +73,6 @@ class NIMESocket extends EventEmitter {
 module.exports = {
   createSocket(ref, server) {
     return new NIMESocket(ref, server);
-  }
+  },
+  NIMESocket
 };
