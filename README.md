@@ -1,6 +1,6 @@
 NIME
 =============
-[![npm][npm-image]][npm-url] [![Build Status][travis-ci-image]][travis-ci-url]
+[![npm][npm-image]][npm-url] [![Build Status][travis-ci-image]][travis-ci-url] [![Coveralls][coveralls-img]][coveralls-url]
 
 Implement input methods easily for Windows with nodejs. It is another [PIME](https://github.com/EasyIME/PIME) server side.
 
@@ -112,3 +112,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 [travis-ci-image]: https://img.shields.io/travis/EasyIME/NIME.svg?style=flat-square
 [travis-ci-url]: https://travis-ci.org/EasyIME/NIME
+
+[coveralls-img]: https://img.shields.io/coveralls/EasyIME/NIME.svg?style=flat-square
+[coveralls-url]: https://coveralls.io/github/EasyIME/NIME

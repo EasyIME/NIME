@@ -1,5 +1,9 @@
 # node
 node_modules/
 
-# Else
+# test
+coverage/
+specs/
+
+# else
 .editorconfig

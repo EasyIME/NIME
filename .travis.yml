@@ -22,4 +22,4 @@ branches:
   - gh-pages
 
 script:
-  - "npm test"
+  - "npm run coveralls"
