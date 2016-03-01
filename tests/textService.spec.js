@@ -114,5 +114,26 @@ describe('Text Service', () => {
         assert.equal(false, service.open);
       });
     });
+
+    context('when onActivate', () => {
+
+      let writeSpy;
+
+      beforeEach(() => {
+        writeSpy = sinon.spy(service, 'write');
+        service.handle = false;
+      });
+
+      it('should write the success response', () => {
+        let fakeMsg = {"seqNum": 12841, "method": "onActivate"}
+
+        service.handleRequest(fakeMsg);
+
+        let testResp = {"success": true, "seqNum": 12841};
+
+        assert.equal(true, service.handle);
+        assert.deepEqual(testResp, writeSpy.getCall(0).args[0]);
+      });
+    });
   });
 });
