@@ -1,7 +1,6 @@
 'use strict';
 
 let EventEmitter = require('events');
-let textService  = require('./textService');
 let LOG          = require('./util/logger');
 
 const SUCCESS          = 0;
@@ -11,14 +10,14 @@ const ERROR_IO_PENDING = 997;
 
 class NIMESocket extends EventEmitter {
 
-  constructor(ref, server, pipe) {
+  constructor(ref, pipe, server, service) {
     super();
     this.ref     = ref;
     this.data    = "";
     this.msg     = {};
-    this.server  = server;
-    this.service = textService.createTextService(this);
     this.pipe    = pipe;
+    this.server  = server;
+    this.service = service;
   }
 
   read() {
@@ -72,8 +71,8 @@ class NIMESocket extends EventEmitter {
 
 
 module.exports = {
-  createSocket(ref, server, pipe) {
-    return new NIMESocket(ref, server, pipe);
+  createSocket(ref, pipe, server, service) {
+    return new NIMESocket(ref, pipe, server, service);
   },
   NIMESocket
 };

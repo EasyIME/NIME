@@ -27,15 +27,19 @@ const SPECIAL_KEY_EVENT = [
 
 class TextService extends EventEmitter {
 
-  constructor(socket) {
+  constructor() {
     super()
-    this.socket     = socket;
+    this.socket     = null;
     this.keyHandler = keyHandler.createKeyHandler();
     this.state      = {};
     this.env        = {};
     this.setting    = {};
     this.handle     = false; // Check already write response or not
     this.open       = true;  // Check Service get started
+  }
+
+  setSocket(socket) {
+    this.socket = socket;
   }
 
   init(msg) {
@@ -81,7 +85,7 @@ class TextService extends EventEmitter {
 
   registerDeactivate() {
     this.on('onDeactivate', (msg) => {
-      this.emit('end', msg, true);
+      this.emit('end', msg, {}, true);
     });
   }
 
@@ -91,7 +95,10 @@ class TextService extends EventEmitter {
       // Emit end event after all incoming event
       this.on(method, (msg, keyHandler) => {
         LOG.info(`TextService ${method}`);
-        this.emit('end', msg);
+
+        let response = this[method](msg, keyHandler);
+
+        this.emit('end', msg, response);
       });
     });
 
@@ -99,15 +106,19 @@ class TextService extends EventEmitter {
       // Emit end event after all incoming event
       this.on(method, (msg) => {
         LOG.info(`TextService ${method}`);
-        this.emit('end', msg);
+
+        let response = this[method](msg, keyHandler);
+
+        this.emit('end', msg, response);
       });
     });
   }
 
   registerEndEvent() {
     // Listen the end of event for setting response
-    this.on('end', (msg, close) => {
+    this.on('end', (msg, response, close) => {
       LOG.info('TextService end ' + close);
+      LOG.info('TextService response ' + response);
 
       if (close) {
         this.close();
@@ -117,7 +128,11 @@ class TextService extends EventEmitter {
       if (!this.handle) {
         LOG.info(`Message: ${JSON.stringify(msg)}`);
 
-        this.writeSuccess(msg['seqNum']);
+        if (response) {
+          this.write(response);
+        } else {
+          this.writeSuccess(msg['seqNum']);
+        }
       }
     });
   }
@@ -192,11 +207,59 @@ class TextService extends EventEmitter {
     this.removeAllListeners();
     this.socket.close();
   }
+
+  // Normal Key Event
+  filterKeyDown() {
+    LOG.info('filterKeyDown')
+    return {};
+  }
+
+  filterKeyUp() {
+    LOG.info('filterKeyUp')
+    return {};
+  }
+
+  onKeyDown() {
+    LOG.info('onKeyDown')
+    return {};
+  }
+
+  onKeyUp() {
+    LOG.info('onKeyUp')
+    return {};
+  }
+
+  // Special Key Event
+  onPreservedKey() {
+    LOG.info('onPreservedKey')
+    return {};
+  }
+
+  onCommand() {
+    LOG.info('onCommand')
+    return {};
+  }
+
+  onCompartmentChanged() {
+    LOG.info('onCompartmentChanged')
+    return {};
+  }
+
+  onKeyboardStatusChanged() {
+    LOG.info('onKeyboardStatusChanged')
+    return {};
+  }
+
+  onCompositionTerminated() {
+    LOG.info('onCompositionTerminated')
+    return {};
+  }
 }
 
 
 module.exports = {
-  createTextService(socket) {
-    return new TextService(socket);
-  }
+  createTextService() {
+    return new TextService();
+  },
+  TextService
 };
