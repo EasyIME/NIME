@@ -39,43 +39,17 @@ npm install nime
 
 `ime.json` is to configure IME.
 
-The usage will look like following. If you have any suggestion, welcome feedback.
-```js
-'use strict';
+There are two way to implement IME.
+- [Event-based](/example/event-based/README.md): It uses the `EventEmitter` to listening key event.
+- [Class-based](/example/class-based/README.md): It should inheritance `TextService` to customize and let server to use it.
 
-let NIME = require('nime');
 
-let server = NIME.createServer();
+## Example
 
-// Listening new connection
-server.on('connection', (service) => {
+It already implements meow IME for example in two way.
 
-  // Listening key event, You can see ../src/textServer.js to see key event
-  service.on('filterKeyDown', (msg, keyHandler) => {
-
-    console.log('Custom Listener Message: ', msg);
-    console.log('Key Code: ', keyHandler.keyCode);
-
-    // You can custom your response
-    let response = {
-      'success': true,
-      'seqNum': msg['seqNum']
-    };
-
-    // Reply to IME client
-    service.write(response);
-  });
-
-  // You can also listen end event that would emit after key event finish
-  service.on('end', (msg) => {
-    console.log('Event finish');
-  });
-
-});
-
-// Start server listening
-server.listen();
-```
+- Event-based: `npm run ex-event`
+- Class-based: `npm run ex-class`
 
 
 ## Reference

@@ -4,7 +4,9 @@
   "description": "Implement input methods easily for Windows with nodejs",
   "main": "index.js",
   "scripts": {
-    "start": "cd example && cross-env NODE_ENV=development node index.js",
+    "start": "npm run ex-event",
+    "ex-event": "cd example/event-based && cross-env NODE_ENV=development node index.js",
+    "ex-class": "cd example/class-based && cross-env NODE_ENV=development node index.js",
     "test": "istanbul cover node_modules/mocha/bin/_mocha -- tests --require tests/helpers/chai.js --reporter spec",
     "coveralls": "npm test && cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage"
   },

@@ -1,7 +1,7 @@
 'use strict';
 
-let NIME = require('../index');
-let KEYCODE = require('../lib/keyCodes');
+let NIME = require('../../index');
+let KEYCODE = require('../../lib/keyCodes');
 
 let server = NIME.createServer();
 
