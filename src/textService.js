@@ -128,11 +128,7 @@ class TextService extends EventEmitter {
       if (!this.handle) {
         LOG.info(`Message: ${JSON.stringify(msg)}`);
 
-        if (response) {
-          this.write(response);
-        } else {
-          this.writeSuccess(msg['seqNum']);
-        }
+        this.writeSuccess(msg['seqNum'], response);
       }
     });
   }
@@ -209,48 +205,48 @@ class TextService extends EventEmitter {
   }
 
   // Normal Key Event
-  filterKeyDown() {
+  filterKeyDown(msg, keyHandler) {
     LOG.info('filterKeyDown')
     return {};
   }
 
-  filterKeyUp() {
+  filterKeyUp(msg, keyHandler) {
     LOG.info('filterKeyUp')
     return {};
   }
 
-  onKeyDown() {
+  onKeyDown(msg, keyHandler) {
     LOG.info('onKeyDown')
     return {};
   }
 
-  onKeyUp() {
+  onKeyUp(msg, keyHandler) {
     LOG.info('onKeyUp')
     return {};
   }
 
   // Special Key Event
-  onPreservedKey() {
+  onPreservedKey(msg, keyHandler) {
     LOG.info('onPreservedKey')
     return {};
   }
 
-  onCommand() {
+  onCommand(msg, keyHandler) {
     LOG.info('onCommand')
     return {};
   }
 
-  onCompartmentChanged() {
+  onCompartmentChanged(msg, keyHandler) {
     LOG.info('onCompartmentChanged')
     return {};
   }
 
-  onKeyboardStatusChanged() {
+  onKeyboardStatusChanged(msg, keyHandler) {
     LOG.info('onKeyboardStatusChanged')
     return {};
   }
 
-  onCompositionTerminated() {
+  onCompositionTerminated(msg, keyHandler) {
     LOG.info('onCompositionTerminated')
     return {};
   }

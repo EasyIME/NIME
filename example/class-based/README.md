@@ -20,22 +20,26 @@ NIME is under MIT License.
 
 ## Implement
 
-It is the event-based implement. It uses the `EventEmitter` to listening key event.
+It is the class-based implement. It should inheritance `TextService` to customize and let server to use it.
 
 ```js
 'use strict';
 
-let NIME = require('nime');
+let NIME        = require('../../index');
+let TextService = require('../../index').TextService;
 
 let server = NIME.createServer();
 
-// Listening new connection
-server.on('connection', (service) => {
+class YourTextService extends TextService {
 
-  // Listening key event, You can see ../src/textServer.js to see key event
-  service.on('filterKeyDown', (msg, keyHandler) => {
+  constructor() {
+    super();
+  }
 
-    console.log('Custom Listener Message: ', msg);
+  // Handle filterKeyDown key event, You can see ../src/textServer.js to see key event type
+  filterKeyDown(msg, keyHandler) {
+
+    console.log('Custom Key Event handler Message: ', msg);
     console.log('Key Code: ', keyHandler.keyCode);
 
     // You can custom your response
@@ -45,12 +49,19 @@ server.on('connection', (service) => {
     };
 
     // Reply to IME client
-    service.write(response);
-  });
+    return response;
+  }
+}
+
+// Register the Text Service
+server.use(new YourTextService());
+
+// Listening new connection
+server.on('connection', (service) => {
 
   // You can also listen end event that would emit after key event finish
-  service.on('end', (msg) => {
-    console.log('Event finish');
+  service.on('end', (msg, response) => {
+    console.log('Event finish ' + JSON.stringify(response));
   });
 
 });
