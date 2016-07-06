@@ -2,6 +2,7 @@
 
 let textService = require('../src/textService');
 let nimeSocket  = require('../src/nimeSocket');
+let fs          = require('fs');
 let sinon       = require('sinon');
 
 describe('Text Service', () => {
@@ -38,32 +39,6 @@ describe('Text Service', () => {
     });
   });
 
-  describe('#registerLangProfileActivated', () => {
-
-    let onSpy;
-
-    beforeEach(() => onSpy = sinon.spy(service, 'on'));
-
-    it('should register onLangProfileActivated event', () => {
-      service.registerLangProfileActivated();
-
-      assert.equal('onLangProfileActivated', onSpy.getCall(0).args[0]);
-    });
-  });
-
-  describe('#registerLangProfileDeactivated', () => {
-
-    let onSpy;
-
-    beforeEach(() => onSpy = sinon.spy(service, 'on'));
-
-    it('should register onLangProfileDeactivated event', () => {
-      service.registerLangProfileDeactivated();
-
-      assert.equal('onLangProfileDeactivated', onSpy.getCall(0).args[0]);
-    });
-  });
-
   describe('#registerDeactivate', () => {
 
     let onSpy;
@@ -91,15 +66,32 @@ describe('Text Service', () => {
   });
 
   describe('#handleRequest', () => {
+    let sandbox;
 
     beforeEach(() => {
-      service.onActivate();
+      sandbox = sinon.sandbox.create();
       service.setting.guid = '{C5F37DA0-274E-4837-9B7C-9BB79FE85D9D}';
     });
 
-    context('when LangProfileActivated with guid match', () => {
+    afterEach(() => {
+      sandbox.restore();
+    })
+
+    context('when init with guid match', () => {
       it('should open the service', () => {
-        let fakeMsg = {"seqNum": 12841, "method": "onLangProfileActivated", "guid": "{C5F37DA0-274E-4837-9B7C-9BB79FE85D9D}"}
+        let readFileSync = sandbox.stub(fs, 'readFileSync');
+        readFileSync.returns('{"guid": "{C5F37DA0-274E-4837-9B7C-9BB79FE85D9D}"}');
+        sandbox.stub(service, 'write');
+
+        let fakeMsg = {
+          "id": "{c5f37da0-274e-4837-9b7c-9bb79fe85d9d}",
+          "isConsole": false,
+          "isMetroApp": false,
+          "isUiLess": false,
+          "isWindows8Above": false,
+          "method":"init",
+          "seqNum":66
+        }
 
         service.handleRequest(fakeMsg);
 
@@ -107,9 +99,20 @@ describe('Text Service', () => {
       });
     });
 
-    context('when LangProfileActivated with guid not match', () => {
+    context('when init with guid not match', () => {
       it('should close the service', () => {
-        let fakeMsg = {"seqNum": 12841, "method": "onLangProfileActivated", "guid": "{123}"}
+        let readFileSync = sandbox.stub(fs, 'readFileSync');
+        readFileSync.returns('{"guid": "{C5F37DA0-274E-4837-9B7C-9BB79FE85D9D}"}');
+        sandbox.stub(service, 'write');
+
+        let fakeMsg = {
+          "id": "{123}",
+          "isConsole": false,
+          "isMetroApp": false,
+          "isUiLess": false,
+          "isWindows8Above": false,
+          "method":"init", "seqNum":66
+        }
 
         service.handleRequest(fakeMsg);
 
@@ -124,6 +127,7 @@ describe('Text Service', () => {
       beforeEach(() => {
         writeSpy = sinon.spy(service, 'write');
         service.handle = false;
+        service.open = true;
       });
 
       it('should write the success response', () => {
