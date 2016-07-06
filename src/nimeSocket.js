@@ -20,6 +20,23 @@ class NIMESocket extends EventEmitter {
     this.service = service;
   }
 
+  handleMessage(msg) {
+
+    switch (msg) {
+      case 'ping':
+        this.write('pong');
+        this.read();
+        break;
+      case 'quit':
+        this.close();
+        break;
+      default:
+        this.service.handleRequest(msg);
+        this.read();
+        break;
+    }
+  }
+
   read() {
     LOG.info('Wait data');
     this.pipe.read(this.ref, (err, data) => {
@@ -28,12 +45,18 @@ class NIMESocket extends EventEmitter {
 
         case SUCCESS:
           this.data += data;
-          this.msg = JSON.parse(this.data);
+
+          LOG.info('Get Data: ' + this.data);
+          try {
+            this.msg = JSON.parse(this.data);
+          } catch (e) {
+            this.msg = this.data;
+          }
+
           this.data = "";
 
           this.emit('data', this.msg);
-          this.service.handleRequest(this.msg);
-          this.read();
+          this.handleMessage(this.msg);
           break;
 
         case ERROR_MORE_DATA:
@@ -53,7 +76,15 @@ class NIMESocket extends EventEmitter {
   }
 
   write(response) {
-    LOG.info(`Write Data: ${JSON.stringify(response)}`);
+    let data = '';
+
+    try {
+      data = JSON.stringify(response);
+    } catch (e) {
+      data = response;
+    }
+
+    LOG.info(`Write Data: ${data}`);
     this.pipe.write(this.ref, response, (err, len) => {
       this.emit('drain', len);
     });

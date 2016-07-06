@@ -35,7 +35,7 @@ class TextService extends EventEmitter {
     this.env        = {};
     this.setting    = {};
     this.handle     = false; // Check already write response or not
-    this.open       = true;  // Check Service get started
+    this.open       = false;  // Check Service get started
   }
 
   setSocket(socket) {
@@ -47,40 +47,34 @@ class TextService extends EventEmitter {
     this.setting = JSON.parse(data);
 
     // Store OS env
+    this.env['id']              = msg['id'];
     this.env['isWindows8Above'] = msg['isWindows8Above'];
     this.env['isMetroApp']      = msg['isMetroApp'];
     this.env['isUiLess']        = msg['isUiLess'];
     this.env['isConsole']       = msg['isConsole'];
+
+    if (this.env['id'].toLowerCase() === this.setting['guid'].toLowerCase()) {
+      this.open = true;
+      this.writeSuccess(msg['seqNum']);
+    } else {
+      this.open = false;
+      this.writeFail(msg['seqNum']);
+    }
   }
 
-  onActivate() {
-    // initialize process
-    this.registerLangProfileActivated();
-    this.registerLangProfileDeactivated();
-    this.registerDeactivate();
+  onActivate(msg) {
+    if (this.open) {
+      // initialize process
+      this.registerDeactivate();
 
-    // key event
-    this.registerKeyEvent();
-    this.registerEndEvent();
-  }
+      // key event
+      this.registerKeyEvent();
+      this.registerEndEvent();
 
-  registerLangProfileActivated() {
-    this.on('onLangProfileActivated', (msg) => {
-      LOG.info('onLangProfileActivated');
-      if (this.setting['guid'] === msg['guid']) {
-        this.open = true;
-      } else {
-        this.open = false;
-      }
-      this.emit('end', msg);
-    });
-  }
-
-  registerLangProfileDeactivated() {
-    this.on('onLangProfileDeactivated', (msg) => {
-      LOG.info('onLangProfileDeactivated');
-      this.emit('end', msg);
-    });
+      this.writeSuccess(msg['seqNum']);
+    } else {
+      this.writeFail(msg['seqNum']);
+    }
   }
 
   registerDeactivate() {
@@ -135,7 +129,6 @@ class TextService extends EventEmitter {
 
   handleRequest(msg) {
     this.handle = false;
-    // LOG.info(msg);
 
     let method = msg['method'];
 
@@ -143,17 +136,13 @@ class TextService extends EventEmitter {
 
       case 'init':
         this.init(msg);
-        this.writeSuccess(msg['seqNum']);
         return;
 
       case 'onActivate':
-        this.onActivate();
-        this.writeSuccess(msg['seqNum']);
+        this.onActivate(msg);
         return;
 
       case 'onDeactivate':
-      case 'onLangProfileActivated':
-      case 'onLangProfileDeactivated':
         this.emit(method, msg);
         break;
 
