@@ -9,9 +9,10 @@ let LOG          = require('./util/logger');
 
 class NIMEServer extends EventEmitter {
 
-  constructor() {
+  constructor(services) {
     super();
     this.connections = [];
+    this.services    = services;
   }
 
   addConnection(socket) {
@@ -28,13 +29,18 @@ class NIMEServer extends EventEmitter {
     pipe.connect((err, ref) => {
       LOG.info('Connected');
 
-      let service = textService.createTextService();
+      let services = [
+        {guid: '123', textService}
+      ];
+
+      if (typeof this.services !== 'undefined') {
+        services = this.services;
+      }
 
       // Each connection create a socket to handle.
-      let socket = nimeSocket.createSocket(ref, pipe, this, service);
+      let socket = nimeSocket.createSocket(ref, pipe, this, services);
 
       this.addConnection(socket);
-      socket.service.setSocket(socket);
 
       // Pass TextService for user define key event
       this.emit('connection', socket.service, socket);
@@ -50,8 +56,7 @@ class NIMEServer extends EventEmitter {
 
 
 module.exports = {
-  createServer() {
-    return new NIMEServer();
-  },
-  TextService: textService.TextService
+  createServer(services) {
+    return new NIMEServer(services);
+  }
 };

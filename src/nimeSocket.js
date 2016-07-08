@@ -6,21 +6,59 @@ const SUCCESS          = 0;
 const ERROR_MORE_DATA  = 234;
 const ERROR_IO_PENDING = 997;
 
-const NEXT_READ    = 0;
-const CLOSE_SOCKET = 1;
+const NO_ACTION    = 0;
+const NEXT_READ    = 1;
+const CLOSE_SOCKET = 2;
 
 
-function createSocket(ref, pipe, server, service) {
+function createSocket(ref, pipe, server, services) {
 
   let readData = '';
-  let message      = {};
+  let message  = {};
+  let service  = null;
+  let open     = false;
+  let state    = {'env': {}};
+
+  function _handleRequest(request) {
+    let response = {success: false, seqNum: request['seqNum']};
+
+    if (request['method'] === 'init') {
+      services.forEach((tmpService) => {
+        if (tmpService['guid'].toLowerCase() === request['id'].toLowerCase()) {
+          service = tmpService['textService'];
+          open    = true;
+        }
+      });
+
+      // Store environment
+      state.env['id']              = request['id'];
+      state.env['isWindows8Above'] = request['isWindows8Above'];
+      state.env['isMetroApp']      = request['isMetroApp'];
+      state.env['isUiLess']        = request['isUiLess'];
+      state.env['isConsole']       = request['isConsole'];
+
+    } else if (request['method'] === 'onActivate' && open === true) {
+      state.env['isKeyboardOpen'] = request['isKeyboardOpen'];
+    }
+
+    if (service !== null && open === true) {
+      // Use the text reducer to change state
+      state    = service.textReducer(request, state);
+      // Handle response
+      response = service.response(request, state);
+    } else {
+      state    = {};
+      response = {success: false, seqNum: request['seqNum']};
+    }
+    write(response, () => read());
+  }
 
   function _handleMessage(msg) {
 
     // For client, check server exist or not.
     if (msg === 'ping') {
-      write('pong');
-      return NEXT_READ;
+      write('pong', () => read());
+      return NO_ACTION;
     }
 
     // For client, quit the server.
@@ -29,8 +67,8 @@ function createSocket(ref, pipe, server, service) {
     }
 
     // Handle the normal message
-    service.handleRequest(msg);
-    return NEXT_READ;
+    _handleRequest(msg);
+    return NO_ACTION;
   };
 
   function _handleData(err, data) {
@@ -71,13 +109,13 @@ function createSocket(ref, pipe, server, service) {
 
       if (result === NEXT_READ) {
         read();
-      } else {
+      } else if(result === CLOSE_SOCKET){
         close();
       }
     });
   }
 
-  function write(response) {
+  function write(response, callback) {
 
     let data = '';
 
@@ -91,9 +129,13 @@ function createSocket(ref, pipe, server, service) {
 
       if (err) {
         LOG.info('Write Failed');
+        close();
       }
 
-      LOG.info(`Write Len: ${len} Data: ${data}`)
+      LOG.info(`Write Len: ${len} Data: ${data}`);
+      if (typeof callback !== 'undefined') {
+        callback();
+      }
     });
   }
 
