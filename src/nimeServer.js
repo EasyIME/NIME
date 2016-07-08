@@ -12,7 +12,6 @@ class NIMEServer extends EventEmitter {
   constructor() {
     super();
     this.connections = [];
-    this.service = null;
   }
 
   addConnection(socket) {
@@ -23,22 +22,16 @@ class NIMEServer extends EventEmitter {
     this.connections = this.connections.filter(s => s !== socket);
   }
 
-  use(service) {
-    this.service = service;
-  }
-
   listen() {
     LOG.info('Wait connection');
 
     pipe.connect((err, ref) => {
       LOG.info('Connected');
 
-      if (this.service === null) {
-        this.service = textService.createTextService();
-      }
+      let service = textService.createTextService();
 
       // Each connection create a socket to handle.
-      let socket = nimeSocket.createSocket(ref, pipe, this, this.service);
+      let socket = nimeSocket.createSocket(ref, pipe, this, service);
 
       this.addConnection(socket);
       socket.service.setSocket(socket);

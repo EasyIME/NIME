@@ -1,81 +1,84 @@
 'use strict';
 
-let EventEmitter = require('events');
-let LOG          = require('./util/logger');
+let LOG = require('./util/logger');
 
 const SUCCESS          = 0;
 const ERROR_MORE_DATA  = 234;
 const ERROR_IO_PENDING = 997;
 
+const NEXT_READ    = 0;
+const CLOSE_SOCKET = 1;
 
-class NIMESocket extends EventEmitter {
 
-  constructor(ref, pipe, server, service) {
-    super();
-    this.ref     = ref;
-    this.data    = "";
-    this.msg     = {};
-    this.pipe    = pipe;
-    this.server  = server;
-    this.service = service;
-  }
+function createSocket(ref, pipe, server, service) {
 
-  handleMessage(msg) {
+  let readData = '';
+  let message      = {};
 
-    switch (msg) {
-      case 'ping':
-        this.write('pong');
-        this.read();
-        break;
-      case 'quit':
-        this.close();
-        break;
-      default:
-        this.service.handleRequest(msg);
-        this.read();
-        break;
+  function _handleMessage(msg) {
+
+    // For client, check server exist or not.
+    if (msg === 'ping') {
+      write('pong');
+      return NEXT_READ;
     }
+
+    // For client, quit the server.
+    if (msg === 'quit') {
+      return CLOSE_SOCKET;
+    }
+
+    // Handle the normal message
+    service.handleRequest(msg);
+    return NEXT_READ;
+  };
+
+  function _handleData(err, data) {
+
+    if (err === SUCCESS) {
+      readData += data;
+
+      LOG.info('Get Data: ' + readData);
+      try {
+        message = JSON.parse(readData);
+      } catch (e) {
+        message = readData;
+      }
+
+      readData = "";
+
+      return _handleMessage(message);
+    }
+
+    if (err === ERROR_MORE_DATA) {
+      readData += data;
+      return NEXT_READ;
+    }
+
+    if (err === ERROR_IO_PENDING) {
+      return NEXT_READ;
+    }
+
+    LOG.info('Socket broken');
+    return CLOSE_SOCKET;
   }
 
-  read() {
-    LOG.info('Wait data');
-    this.pipe.read(this.ref, (err, data) => {
+  function read() {
 
-      switch (err) {
+    pipe.read(ref, (err, data) => {
 
-        case SUCCESS:
-          this.data += data;
+      let result = _handleData(err, data);
 
-          LOG.info('Get Data: ' + this.data);
-          try {
-            this.msg = JSON.parse(this.data);
-          } catch (e) {
-            this.msg = this.data;
-          }
-
-          this.data = "";
-
-          this.emit('data', this.msg);
-          this.handleMessage(this.msg);
-          break;
-
-        case ERROR_MORE_DATA:
-          this.data += data;
-          this.read();
-          break;
-
-        case ERROR_IO_PENDING:
-          this.read();
-          break;
-
-        default:
-          LOG.info('Socket broken');
-          this.close();
+      if (result === NEXT_READ) {
+        read();
+      } else {
+        close();
       }
     });
   }
 
-  write(response) {
+  function write(response) {
+
     let data = '';
 
     try {
@@ -84,26 +87,25 @@ class NIMESocket extends EventEmitter {
       data = response;
     }
 
-    LOG.info(`Write Data: ${data}`);
-    this.pipe.write(this.ref, response, (err, len) => {
-      this.emit('drain', len);
+    pipe.write(ref, response, (err, len) => {
+
+      if (err) {
+        LOG.info('Write Failed');
+      }
+
+      LOG.info(`Write Len: ${len} Data: ${data}`)
     });
   }
 
-  close() {
-    this.pipe.close(this.ref, (err) => {
-
-      this.service = null;
-      this.emit('end', err);
-      this.server.deleteConnection(this);
+  function close() {
+    pipe.close(ref, (err) => {
+      server.deleteConnection(this);
     });
   }
+
+  return {read, write, close, service};
 }
 
-
 module.exports = {
-  createSocket(ref, pipe, server, service) {
-    return new NIMESocket(ref, pipe, server, service);
-  },
-  NIMESocket
+  createSocket
 };
