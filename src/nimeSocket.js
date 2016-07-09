@@ -23,6 +23,7 @@ function createSocket(ref, pipe, server, services) {
     let response = {success: false, seqNum: request['seqNum']};
 
     if (request['method'] === 'init') {
+      // Search the service
       services.forEach((tmpService) => {
         if (tmpService['guid'].toLowerCase() === request['id'].toLowerCase()) {
           service = tmpService['textService'];
@@ -50,14 +51,14 @@ function createSocket(ref, pipe, server, services) {
       state    = {};
       response = {success: false, seqNum: request['seqNum']};
     }
-    write(response, () => read());
+    this.write(response, () => this.read());
   }
 
   function _handleMessage(msg) {
 
     // For client, check server exist or not.
     if (msg === 'ping') {
-      write('pong', () => read());
+      this.write('pong', () => this.read());
       return NO_ACTION;
     }
 
@@ -67,7 +68,7 @@ function createSocket(ref, pipe, server, services) {
     }
 
     // Handle the normal message
-    _handleRequest(msg);
+    this._handleRequest(msg);
     return NO_ACTION;
   };
 
@@ -85,7 +86,7 @@ function createSocket(ref, pipe, server, services) {
 
       readData = "";
 
-      return _handleMessage(message);
+      return this._handleMessage(message);
     }
 
     if (err === ERROR_MORE_DATA) {
@@ -105,12 +106,12 @@ function createSocket(ref, pipe, server, services) {
 
     pipe.read(ref, (err, data) => {
 
-      let result = _handleData(err, data);
+      let result = this._handleData(err, data);
 
       if (result === NEXT_READ) {
-        read();
+        this.read();
       } else if(result === CLOSE_SOCKET){
-        close();
+        this.close();
       }
     });
   }
@@ -129,7 +130,7 @@ function createSocket(ref, pipe, server, services) {
 
       if (err) {
         LOG.info('Write Failed');
-        close();
+        this.close();
       }
 
       LOG.info(`Write Len: ${len} Data: ${data}`);
@@ -145,7 +146,14 @@ function createSocket(ref, pipe, server, services) {
     });
   }
 
-  return {read, write, close, service};
+  return {
+    read,
+    write,
+    close,
+    _handleData,
+    _handleMessage,
+    _handleRequest
+  };
 }
 
 module.exports = {
