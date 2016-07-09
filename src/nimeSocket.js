@@ -1,81 +1,124 @@
 'use strict';
 
-let EventEmitter = require('events');
-let LOG          = require('./util/logger');
+let debugGenerator = require('debug');
 
 const SUCCESS          = 0;
 const ERROR_MORE_DATA  = 234;
 const ERROR_IO_PENDING = 997;
 
+const NO_ACTION    = 0;
+const NEXT_READ    = 1;
+const CLOSE_SOCKET = 2;
 
-class NIMESocket extends EventEmitter {
 
-  constructor(ref, pipe, server, service) {
-    super();
-    this.ref     = ref;
-    this.data    = "";
-    this.msg     = {};
-    this.pipe    = pipe;
-    this.server  = server;
-    this.service = service;
-  }
+function createSocket(ref, pipe, server, services, id) {
 
-  handleMessage(msg) {
+  let readData = '';
+  let message  = {};
+  let service  = null;
+  let open     = false;
+  let state    = {'env': {}};
+  let debug    = debugGenerator(`nime:socket:${id}`);
 
-    switch (msg) {
-      case 'ping':
-        this.write('pong');
-        this.read();
-        break;
-      case 'quit':
-        this.close();
-        break;
-      default:
-        this.service.handleRequest(msg);
-        this.read();
-        break;
+  function _handleRequest(request) {
+    let response = {success: false, seqNum: request['seqNum']};
+
+    if (request['method'] === 'init') {
+      // Search the service
+      services.forEach((tmpService) => {
+        if (tmpService['guid'].toLowerCase() === request['id'].toLowerCase()) {
+          service = tmpService['textService'];
+          open    = true;
+        }
+      });
+
+      // Store environment
+      state.env['id']              = request['id'];
+      state.env['isWindows8Above'] = request['isWindows8Above'];
+      state.env['isMetroApp']      = request['isMetroApp'];
+      state.env['isUiLess']        = request['isUiLess'];
+      state.env['isConsole']       = request['isConsole'];
+
+    } else if (request['method'] === 'onActivate' && open === true) {
+      state.env['isKeyboardOpen'] = request['isKeyboardOpen'];
     }
+
+    if (service !== null && open === true) {
+      // Use the text reducer to change state
+      state    = service.textReducer(request, state);
+      // Handle response
+      response = service.response(request, state);
+    } else {
+      state    = {};
+      response = {success: false, seqNum: request['seqNum']};
+    }
+    this.write(response, () => this.read());
   }
 
-  read() {
-    LOG.info('Wait data');
-    this.pipe.read(this.ref, (err, data) => {
+  function _handleMessage(msg) {
 
-      switch (err) {
+    // For client, check server exist or not.
+    if (msg === 'ping') {
+      this.write('pong', () => this.read());
+      return NO_ACTION;
+    }
 
-        case SUCCESS:
-          this.data += data;
+    // For client, quit the server.
+    if (msg === 'quit') {
+      return CLOSE_SOCKET;
+    }
 
-          LOG.info('Get Data: ' + this.data);
-          try {
-            this.msg = JSON.parse(this.data);
-          } catch (e) {
-            this.msg = this.data;
-          }
+    // Handle the normal message
+    this._handleRequest(msg);
+    return NO_ACTION;
+  };
 
-          this.data = "";
+  function _handleData(err, data) {
 
-          this.emit('data', this.msg);
-          this.handleMessage(this.msg);
-          break;
+    if (err === SUCCESS) {
+      readData += data;
 
-        case ERROR_MORE_DATA:
-          this.data += data;
-          this.read();
-          break;
+      debug('Get Data: ' + readData);
+      try {
+        message = JSON.parse(readData);
+      } catch (e) {
+        message = readData;
+      }
 
-        case ERROR_IO_PENDING:
-          this.read();
-          break;
+      readData = "";
 
-        default:
-          LOG.info('Socket broken');
-          this.close();
+      return this._handleMessage(message);
+    }
+
+    if (err === ERROR_MORE_DATA) {
+      readData += data;
+      return NEXT_READ;
+    }
+
+    if (err === ERROR_IO_PENDING) {
+      return NEXT_READ;
+    }
+
+    debug('Socket broken');
+    return CLOSE_SOCKET;
+  }
+
+  function read() {
+
+    pipe.read(ref, (err, data) => {
+
+      let result = this._handleData(err, data);
+
+      if (result === NEXT_READ) {
+        this.read();
+      } else if(result === CLOSE_SOCKET){
+        this.close();
       }
     });
   }
 
-  write(response) {
+  function write(response, callback) {
+
     let data = '';
 
     try {
@@ -84,26 +127,36 @@ class NIMESocket extends EventEmitter {
       data = response;
     }
 
-    LOG.info(`Write Data: ${data}`);
-    this.pipe.write(this.ref, response, (err, len) => {
-      this.emit('drain', len);
+    pipe.write(ref, response, (err, len) => {
+
+      if (err) {
+        debug('Write Failed');
+        this.close();
+      }
+
+      debug(`Write Len: ${len} Data: ${data}`);
+      if (typeof callback !== 'undefined') {
+        callback();
+      }
     });
   }
 
-  close() {
-    this.pipe.close(this.ref, (err) => {
-
-      this.service = null;
-      this.emit('end', err);
-      this.server.deleteConnection(this);
+  function close() {
+    pipe.close(ref, (err) => {
+      server.deleteConnection(this);
     });
   }
+
+  return {
+    read,
+    write,
+    close,
+    _handleData,
+    _handleMessage,
+    _handleRequest
+  };
 }
 
-
 module.exports = {
-  createSocket(ref, pipe, server, service) {
-    return new NIMESocket(ref, pipe, server, service);
-  },
-  NIMESocket
+  createSocket
 };
