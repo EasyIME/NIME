@@ -1,6 +1,6 @@
 'use strict';
 
-let LOG = require('./util/logger');
+let debugGenerator = require('debug');
 
 const SUCCESS          = 0;
 const ERROR_MORE_DATA  = 234;
@@ -11,13 +11,14 @@ const NEXT_READ    = 1;
 const CLOSE_SOCKET = 2;
 
 
-function createSocket(ref, pipe, server, services) {
+function createSocket(ref, pipe, server, services, id) {
 
   let readData = '';
   let message  = {};
   let service  = null;
   let open     = false;
   let state    = {'env': {}};
+  let debug    = debugGenerator(`nime:socket:${id}`);
 
   function _handleRequest(request) {
     let response = {success: false, seqNum: request['seqNum']};
@@ -77,7 +78,7 @@ function createSocket(ref, pipe, server, services) {
     if (err === SUCCESS) {
       readData += data;
 
-      LOG.info('Get Data: ' + readData);
+      debug('Get Data: ' + readData);
       try {
         message = JSON.parse(readData);
       } catch (e) {
@@ -98,7 +99,7 @@ function createSocket(ref, pipe, server, services) {
       return NEXT_READ;
     }
 
-    LOG.info('Socket broken');
+    debug('Socket broken');
     return CLOSE_SOCKET;
   }
 
@@ -129,11 +130,11 @@ function createSocket(ref, pipe, server, services) {
     pipe.write(ref, response, (err, len) => {
 
       if (err) {
-        LOG.info('Write Failed');
+        debug('Write Failed');
         this.close();
       }
 
-      LOG.info(`Write Len: ${len} Data: ${data}`);
+      debug(`Write Len: ${len} Data: ${data}`);
       if (typeof callback !== 'undefined') {
         callback();
       }
