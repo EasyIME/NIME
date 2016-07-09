@@ -18,7 +18,7 @@ Please install PIME >= 0.03 version
 
 #### Node
 
-- Node v4.x 32 bit (Must be 32 bit.)
+- Node v6.x 32 bit (Must be 32 bit.)
 - Install [node-gyp](https://github.com/nodejs/node-gyp) dependecise for c binding through [node-ffi](https://github.com/node-ffi/node-ffi). Please see [node-gyp document](https://github.com/nodejs/node-gyp#installation) to setup your environment.
 
 
@@ -40,16 +40,14 @@ npm install nime
 `ime.json` is to configure IME.
 
 There are two way to implement IME.
-- [Event-based](/example/event-based/README.md): It uses the `EventEmitter` to listening key event.
-- [Class-based](/example/class-based/README.md): It should inheritance `TextService` to customize and let server to use it.
+- [reduce-based](/example/meow/README.md): It uses the `textReducer` and `response` function to handle text and request.
 
 
 ## Example
 
-It already implements meow IME for example in two way.
+It already implements meow IME for example.
 
-- Event-based: `npm run ex-event`
-- Class-based: `npm run ex-class`
+- `npm run start`
 
 
 ## Reference
