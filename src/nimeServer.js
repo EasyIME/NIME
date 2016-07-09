@@ -1,15 +1,16 @@
 'use strict';
 
-let pipe         = require('../lib/pipe');
-let nimeSocket   = require('./nimeSocket');
-let textService  = require('./textService');
-let debug        = require('debug')('nime:server');
+let pipeGen     = require('../lib/pipe');
+let nimeSocket  = require('./nimeSocket');
+let textService = require('./textService');
+let debug       = require('debug')('nime:server');
 
 
-function createServer(services = [{guid: '123', textService}]) {
+function createServer(dllPath, services = [{guid: '123', textService}]) {
 
   let connections = [];
   let id = 0;
+  let pipe = pipeGen.createPIPE(dllPath);
 
   function addConnection(socket) {
     connections.push(socket);

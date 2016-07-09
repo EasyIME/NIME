@@ -21,6 +21,6 @@ imeDir.forEach((dir) => {
   }
 });
 
-let server = NIME.createServer(services);
+let server = NIME.createServer('../lib/libpipe.dll', services);
 
 server.listen();
