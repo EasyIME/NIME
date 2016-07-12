@@ -127,7 +127,7 @@ function createSocket(ref, pipe, server, services, id) {
       data = response;
     }
 
-    pipe.write(ref, response, (err, len) => {
+    pipe.write(ref, data, (err, len) => {
 
       if (err) {
         debug('Write Failed');
