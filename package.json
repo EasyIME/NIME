@@ -1,6 +1,6 @@
 {
   "name": "nime",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Implement input methods easily for Windows with nodejs",
   "main": "index.js",
   "scripts": {
