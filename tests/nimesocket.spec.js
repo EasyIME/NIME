@@ -12,7 +12,8 @@ const ERROR_IO_PENDING = 997;
 
 const NO_ACTION    = 0;
 const NEXT_READ    = 1;
-const CLOSE_SOCKET = 2;
+const NEXT_WRITE   = 2;
+const CLOSE_SOCKET = 3;
 
 describe('Socket', () => {
 
@@ -46,11 +47,10 @@ describe('Socket', () => {
       let socket = nimeSocket.createSocket(FAKE_REF, fakePipe, fakeServer, textService, 0);
       let fakeData = "ping";
 
-      socket.write = sinon.spy();
+      let [result, response] = socket._handleData(SUCCESS, fakeData);
 
-      socket._handleData(SUCCESS, fakeData);
-
-      assert.equal('pong', socket.write.getCall(0).args[0]);
+      assert.equal('pong', response);
+      assert.equal(NEXT_WRITE, result);
     });
 
     it('should close when request quit', () => {
@@ -58,7 +58,7 @@ describe('Socket', () => {
       let socket = nimeSocket.createSocket(FAKE_REF, fakePipe, fakeServer, textService, 0);
       let fakeData = "quit";
 
-      let result = socket._handleData(SUCCESS, fakeData);
+      let [result, response] = socket._handleData(SUCCESS, fakeData);
 
       assert.equal(CLOSE_SOCKET, result);
     });
@@ -66,8 +66,6 @@ describe('Socket', () => {
     it('should initialize state env when request init', () => {
       let socket = nimeSocket.createSocket(FAKE_REF, fakePipe, fakeServer, [fakeService], 0);
       let fakeData = '{"id":"123","isConsole":false,"isMetroApp":false,"isUiLess":false,"isWindows8Above":false,"method":"init","seqNum":233}';
-
-      socket.write = sinon.spy();
 
       socket._handleData(SUCCESS, fakeData);
 
@@ -100,8 +98,6 @@ describe('Socket', () => {
       let fakeData = '{"id":"123","isConsole":false,"isMetroApp":false,"isUiLess":false,"isWindows8Above":false,"method":"init","seqNum":233}';
       let fakeData2 = '{"isKeyboardOpen":true,"method":"onActivate","seqNum":0}';
 
-      socket.write = sinon.spy();
-
       socket._handleData(SUCCESS, fakeData);
       socket._handleData(SUCCESS, fakeData2);
 
@@ -130,15 +126,14 @@ describe('Socket', () => {
       let socket = nimeSocket.createSocket(FAKE_REF, fakePipe, fakeServer, [fakeService], 0);
       let fakeData = '{"id":"321","isConsole":false,"isMetroApp":false,"isUiLess":false,"isWindows8Above":false,"method":"init","seqNum":233}';
 
-      socket.write = sinon.spy();
-
-      socket._handleData(SUCCESS, fakeData);
+      let [result, response] = socket._handleData(SUCCESS, fakeData);
 
       let testResponse = {
         success: false, seqNum: 233
       };
 
-      assert.deepEqual(testResponse, socket.write.getCall(0).args[0]);
+      assert.deepEqual(testResponse, response);
+      assert.deepEqual(NEXT_WRITE, result);
     });
   });
 });
