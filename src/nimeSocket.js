@@ -12,7 +12,7 @@ const NEXT_WRITE   = 2;
 const CLOSE_SOCKET = 3;
 
 
-function createSocket(ref, pipe, server, services, id) {
+function createSocket(ref, pipe, {services, id}, callback) {
 
   let readData = '';
   let message  = {};
@@ -69,7 +69,7 @@ function createSocket(ref, pipe, server, services, id) {
     }
 
     // Handle the normal message
-    return this._handleRequest(msg);
+    return _handleRequest(msg);
   };
 
   function _handleData(err, data) {
@@ -86,7 +86,7 @@ function createSocket(ref, pipe, server, services, id) {
 
       readData = "";
 
-      return this._handleMessage(message);
+      return _handleMessage(message);
     }
 
     if (err === ERROR_MORE_DATA) {
@@ -106,19 +106,19 @@ function createSocket(ref, pipe, server, services, id) {
 
     pipe.read(ref, (err, data) => {
 
-      let [result, response] = this._handleData(err, data);
+      let [result, response] = _handleData(err, data);
 
       if (result === NEXT_READ) {
-        this.read();
+        read();
       } else if(result === CLOSE_SOCKET){
-        this.close();
+        close();
       } else if (result === NEXT_WRITE) {
-        this.write(response, () => this.read());
+        write(response);
       }
     });
   }
 
-  function write(response, callback) {
+  function write(response) {
 
     let data = '';
 
@@ -132,19 +132,20 @@ function createSocket(ref, pipe, server, services, id) {
 
       if (err) {
         debug('Write Failed');
-        this.close();
+        close();
       }
 
       debug(`Write Len: ${len} Data: ${data}`);
-      if (typeof callback !== 'undefined') {
-        callback();
-      }
+      read();
     });
   }
 
   function close() {
     pipe.close(ref, (err) => {
-      server.deleteConnection(this);
+      callback({
+        type: 'SOCKET_CLOSE',
+        id
+      });
     });
   }
 
@@ -152,9 +153,7 @@ function createSocket(ref, pipe, server, services, id) {
     read,
     write,
     close,
-    _handleData,
-    _handleMessage,
-    _handleRequest
+    _handleData
   };
 }
 

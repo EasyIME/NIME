@@ -20,7 +20,6 @@ describe('Socket', () => {
   describe('#initialize', () => {
 
     let fakePipe;
-    let fakeServer;
     let fakeService;
 
     beforeEach(() => {
@@ -29,9 +28,6 @@ describe('Socket', () => {
         read: sinon.spy(),
         write: sinon.spy(),
         close: sinon.spy()
-      };
-      fakeServer = {
-        deleteConnection: sinon.spy()
       };
       fakeService = {
         guid: '123',
@@ -44,7 +40,7 @@ describe('Socket', () => {
 
     it('should response pong when request ping', () => {
 
-      let socket = nimeSocket.createSocket(FAKE_REF, fakePipe, fakeServer, textService, 0);
+      let socket = nimeSocket.createSocket(FAKE_REF, fakePipe, {services: [fakeService], id: 0});
       let fakeData = "ping";
 
       let [result, response] = socket._handleData(SUCCESS, fakeData);
@@ -55,7 +51,7 @@ describe('Socket', () => {
 
     it('should close when request quit', () => {
 
-      let socket = nimeSocket.createSocket(FAKE_REF, fakePipe, fakeServer, textService, 0);
+      let socket = nimeSocket.createSocket(FAKE_REF, fakePipe, {services: [fakeService], id: 0});
       let fakeData = "quit";
 
       let [result, response] = socket._handleData(SUCCESS, fakeData);
@@ -64,7 +60,7 @@ describe('Socket', () => {
     });
 
     it('should initialize state env when request init', () => {
-      let socket = nimeSocket.createSocket(FAKE_REF, fakePipe, fakeServer, [fakeService], 0);
+      let socket = nimeSocket.createSocket(FAKE_REF, fakePipe, {services: [fakeService], id: 0});
       let fakeData = '{"id":"123","isConsole":false,"isMetroApp":false,"isUiLess":false,"isWindows8Above":false,"method":"init","seqNum":233}';
 
       socket._handleData(SUCCESS, fakeData);
@@ -94,7 +90,7 @@ describe('Socket', () => {
     });
 
     it('should onActivate state env when request onActivate after init', () => {
-      let socket = nimeSocket.createSocket(FAKE_REF, fakePipe, fakeServer, [fakeService], 0);
+      let socket = nimeSocket.createSocket(FAKE_REF, fakePipe, {services: [fakeService], id: 0});
       let fakeData = '{"id":"123","isConsole":false,"isMetroApp":false,"isUiLess":false,"isWindows8Above":false,"method":"init","seqNum":233}';
       let fakeData2 = '{"isKeyboardOpen":true,"method":"onActivate","seqNum":0}';
 
@@ -123,7 +119,7 @@ describe('Socket', () => {
     });
 
     it('should write failed when not find the text service', () => {
-      let socket = nimeSocket.createSocket(FAKE_REF, fakePipe, fakeServer, [fakeService], 0);
+      let socket = nimeSocket.createSocket(FAKE_REF, fakePipe, {services: [fakeService], id: 0});
       let fakeData = '{"id":"321","isConsole":false,"isMetroApp":false,"isUiLess":false,"isWindows8Above":false,"method":"init","seqNum":233}';
 
       let [result, response] = socket._handleData(SUCCESS, fakeData);
