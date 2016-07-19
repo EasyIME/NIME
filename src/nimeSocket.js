@@ -25,13 +25,23 @@ function createSocket(ref, pipe, {services, id}, callback) {
     let response = {success: false, seqNum: request['seqNum']};
 
     if (request['method'] === 'init') {
-      // Search the service
-      services.forEach((tmpService) => {
-        if (tmpService['guid'].toLowerCase() === request['id'].toLowerCase()) {
-          service = tmpService['textService'];
-          open    = true;
+
+      if (typeof services === 'function') {
+        // Let user handle services
+        service = services(request);
+        if (service) {
+          open = true;
         }
-      });
+      } else {
+        // Search the service
+        services.forEach((tmpService) => {
+          if (tmpService['guid'].toLowerCase() === request['id'].toLowerCase()) {
+            service = tmpService['textService'];
+            open    = true;
+          }
+        });
+      }
+
 
       // Store environment
       state.env['id']              = request['id'];

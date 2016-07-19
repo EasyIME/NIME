@@ -131,5 +131,42 @@ describe('Socket', () => {
       assert.deepEqual(testResponse, response);
       assert.deepEqual(NEXT_WRITE, result);
     });
+
+    it('should allow use to customize the text service', () => {
+
+      let customService = function(request) {
+        if (request['id'].toLowerCase() === '123') {
+          return fakeService['textService'];
+        }
+      }
+
+      let socket = nimeSocket.createSocket(FAKE_REF, fakePipe, {services: customService, id: 0});
+      let fakeData = '{"id":"123","isConsole":false,"isMetroApp":false,"isUiLess":false,"isWindows8Above":false,"method":"init","seqNum":233}';
+
+      socket._handleData(SUCCESS, fakeData);
+
+      let testRequest = {
+        id: '123',
+        isConsole: false,
+        isMetroApp: false,
+        isUiLess: false,
+        isWindows8Above: false,
+        method: 'init',
+        seqNum: 233
+      };
+
+      let testState = {
+        env: {
+          id: '123',
+          isWindows8Above: false,
+          isMetroApp: false,
+          isUiLess: false,
+          isConsole: false
+        }
+      };
+
+      assert.deepEqual(testRequest, fakeService.textService.response.getCall(0).args[0]);
+      assert.deepEqual(testState, fakeService.textService.response.getCall(0).args[1]);
+    });
   });
 });
