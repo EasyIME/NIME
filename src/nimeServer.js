@@ -40,6 +40,7 @@ function createServer(dllPath, services = []) {
     type: () => true
   }));
 
+  // Initialize client return client id
   app.post('/', (req, res) => {
     debug("start");
 
@@ -51,10 +52,11 @@ function createServer(dllPath, services = []) {
     const client_id = uuid.v4();
 
     connections[client_id] = {service: null, state: null};
-    debug(connections);
+    debug(`Connections: ${connections}`);
     res.send(client_id);
   });
 
+  // Handle client request, http url: /clientId  body: request
   app.post('*', (req, res) => {
 
     if (!isAuthenticated(req, httpBasicAuth)) {
@@ -93,6 +95,7 @@ function createServer(dllPath, services = []) {
     }
   });
 
+  // Delete client, http url: /clientId
   app.delete('*', (req, res) => {
     if (!isAuthenticated(req, httpBasicAuth)) {
       debug('Authenticate not match');
@@ -146,6 +149,7 @@ function createServer(dllPath, services = []) {
 
     writeFile(statusFile, JSON.stringify(info));
   }
+
   return {listen};
 }
 
