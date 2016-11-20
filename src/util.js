@@ -34,7 +34,12 @@ function writeFile(file, content) {
   });
 }
 
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 module.exports = {
   makeDir,
-  writeFile
+  writeFile,
+  getRandomInt
 };

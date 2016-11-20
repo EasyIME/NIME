@@ -12,11 +12,15 @@ const {
 
 const {
   makeDir,
-  writeFile
+  writeFile,
+  getRandomInt
 } = require('./util');
 
 const statusDir  = `${process.env.LOCALAPPDATA}/PIME/status`;
 const statusFile = `${statusDir}/node.json`;
+
+const minPort = 1025;
+const maxPort = 65535;
 
 function isAuthenticated(req, httpBasicAuth) {
   return req.get('Authentication') === httpBasicAuth;
@@ -91,12 +95,24 @@ function createServer(dllPath, services = []) {
 
   function listen() {
 
-    app.listen(3000, '127.0.0.1');
-    debug('Wait connection');
+    let port = 3000;
+
+    while (true) {
+      port = getRandomInt(minPort, maxPort);
+      try {
+        app.listen(port, '127.0.0.1');
+        debug(`Wait connection at 127.0.0.1:${port}`);
+        break;
+      } catch (err) {
+        if (err) {
+          debug(`Port has be uesd ${port}, error: ${err}`);
+        }
+      }
+    }
 
     const info = {
+      port,
       pid: process.pid,
-      port: 3000,
       access_token: accessToken
     };
 
