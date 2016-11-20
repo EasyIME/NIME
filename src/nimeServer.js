@@ -26,7 +26,7 @@ function isAuthenticated(req, httpBasicAuth) {
   return req.get('Authentication') === httpBasicAuth;
 }
 
-function createServer(dllPath, services = []) {
+function createServer(services = []) {
 
   const app = express();
   const accessToken = uuid.v4();
