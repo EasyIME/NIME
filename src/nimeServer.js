@@ -93,6 +93,34 @@ function createServer(dllPath, services = []) {
     }
   });
 
+  app.delete('*', (req, res) => {
+    if (!isAuthenticated(req, httpBasicAuth)) {
+      debug('Authenticate not match');
+      res.send('');
+      return;
+    }
+
+    const clientId = req.path.slice(1);
+    const request  = req.body;
+
+    debug(clientId);
+    debug(request);
+
+    if (clientId === '') {
+      // Exit the IME server
+      process.exit();
+    }
+
+    if (!connections.hasOwnProperty(clientId)) {
+      debug(`Connection not found ${clientId}`);
+      res.send('');
+      return;
+    }
+
+    delete connections[clientId];
+    res.send('');
+  })
+
   function listen() {
 
     let port = 3000;
