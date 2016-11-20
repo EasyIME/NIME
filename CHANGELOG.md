@@ -1,3 +1,16 @@
+<a name="0.4.0"></a>
+# [0.4.0](https://github.com/jessy1092/NIME/compare/v0.3.0...v0.4.0) (2016-11-20)
+
+
+### Features
+
+* Modify createServer api, there no need dllPath([4524c59](https://github.com/jessy1092/NIME/commit/4524c59))
+* Support delete the client id when client terminate connection(http delete)([5db699d](https://github.com/jessy1092/NIME/commit/5db699d))
+* Support random port([b57a0c9](https://github.com/jessy1092/NIME/commit/b57a0c9))
+* Support the IME http server, the new IPC architecture([3ce13f7](https://github.com/jessy1092/NIME/commit/3ce13f7))
+
+
+
 <a name="0.3.0"></a>
 # [0.3.0](https://github.com/jessy1092/NIME/compare/v0.2.1...v0.3.0) (2016-07-19)
 
