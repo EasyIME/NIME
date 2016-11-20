@@ -4,9 +4,12 @@ const express    = require('express');
 const bodyParser = require('body-parser');
 const fs         = require('fs');
 const uuid       = require('uuid');
+const debug      = require('debug')('nime:server');
 
-let textService = require('./textService');
-let debug       = require('debug')('nime:server');
+const {
+  initService,
+  handleRequest
+} = require('./requestHandler');
 
 const statusDir  = `${process.env.LOCALAPPDATA}/PIME/status`;
 const statusFile = `${statusDir}/node.json`;
@@ -40,77 +43,13 @@ function isAuthenticated(req, httpBasicAuth) {
   return req.get('Authentication') === httpBasicAuth;
 }
 
-function initService(request, services) {
-  let response = {success: false, seqNum: request['seqNum']};
-  let service = null;
-  let state = {
-    env: {}
-  };
-
-  if (typeof services === 'function') {
-    // Let user handle services
-    service = services(request);
-  } else {
-    // Search the service
-    services.forEach((tmpService) => {
-      if (tmpService['guid'].toLowerCase() === request['id'].toLowerCase()) {
-        service = tmpService['textService'];
-      }
-    });
-  }
-
-  // Store environment
-  state.env['id']              = request['id'];
-  state.env['isWindows8Above'] = request['isWindows8Above'];
-  state.env['isMetroApp']      = request['isMetroApp'];
-  state.env['isUiLess']        = request['isUiLess'];
-  state.env['isConsole']       = request['isConsole'];
-
-  if (service !== null) {
-    // Use the text reducer to change state
-    state    = service.textReducer(request, state);
-    // Handle response
-    response = service.response(request, state);
-  } else {
-    state    = {};
-    response = {success: false, seqNum: request['seqNum']};
-  }
-
-  return {service, state, response};
-}
-
-function handleRequest(request, {state, service = null}) {
-  let response = {success: false, seqNum: request['seqNum']};
-
-  if (request['method'] === 'onActivate') {
-    state.env['isKeyboardOpen'] = request['isKeyboardOpen'];
-  }
-
-  if (service !== null) {
-    // Use the text reducer to change state
-    state    = service.textReducer(request, state);
-    // Handle response
-    response = service.response(request, state);
-  } else {
-    state    = {};
-    response = {success: false, seqNum: request['seqNum']};
-  }
-
-  return {state, response};
-}
-
-function createServer(dllPath, services = [{guid: '123', textService}]) {
+function createServer(dllPath, services = []) {
 
   const app = express();
   const accessToken = uuid.v4();
   const userPass = `PIME:${accessToken}`;
   const httpBasicAuth = `Basic ${new Buffer.from(userPass).toString('base64')}`;
-  let connections = {};
-  let id = 0;
-  let storeState = {
-    env: {}
-  };
-  let response = {};
+  const connections = {};
 
   makeDir(`${process.env.LOCALAPPDATA}/PIME/status`);
 
@@ -128,10 +67,7 @@ function createServer(dllPath, services = [{guid: '123', textService}]) {
 
     const client_id = uuid.v4();
 
-    connections[client_id] = {
-      service: null,
-      state: null
-    };
+    connections[client_id] = {service: null, state: null};
     debug(connections);
     res.send(client_id);
   });
@@ -159,8 +95,7 @@ function createServer(dllPath, services = [{guid: '123', textService}]) {
     if (request['method'] === 'init') {
 
       let {service, state, response} = initService(request, services);
-      connections[clientId].service = service;
-      connections[clientId].state = state;
+      connections[clientId] = {service, state}
       debug(response);
       res.send(JSON.stringify(response));
       return;
@@ -193,7 +128,6 @@ function createServer(dllPath, services = [{guid: '123', textService}]) {
   }
   return {listen};
 }
-
 
 module.exports = {
   createServer
