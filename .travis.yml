@@ -13,4 +13,4 @@ branches:
   - gh-pages
 
 script:
-  - "npm run coveralls"
+  - "npm test"
