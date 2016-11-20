@@ -2,7 +2,6 @@
 
 const express    = require('express');
 const bodyParser = require('body-parser');
-const fs         = require('fs');
 const uuid       = require('uuid');
 const debug      = require('debug')('nime:server');
 
@@ -11,33 +10,13 @@ const {
   handleRequest
 } = require('./requestHandler');
 
+const {
+  makeDir,
+  writeFile
+} = require('./util');
+
 const statusDir  = `${process.env.LOCALAPPDATA}/PIME/status`;
 const statusFile = `${statusDir}/node.json`;
-
-function makeDir(path) {
-
-  const paths = path.split('/');
-  const entries = [];
-  paths.reduce((entry, tmp) => {
-    entries.push(entry);
-    return `${entry}/${tmp}`
-  });
-
-  entries.push(path);
-
-  entries.forEach(entry => {
-    try {
-      const stats = fs.statSync(entry);
-      if (!stats.isDirectory()) {
-        fs.mkdirSync(entry);
-      }
-    } catch (err) {
-      if (err && err.code === 'ENOENT') {
-        fs.mkdirSync(entry);
-      }
-    }
-  })
-}
 
 function isAuthenticated(req, httpBasicAuth) {
   return req.get('Authentication') === httpBasicAuth;
@@ -112,19 +91,16 @@ function createServer(dllPath, services = []) {
 
   function listen() {
 
+    app.listen(3000, '127.0.0.1');
+    debug('Wait connection');
+
     const info = {
       pid: process.pid,
       port: 3000,
       access_token: accessToken
     };
 
-    fs.writeFile(statusFile, JSON.stringify(info), (err) => {
-      if (err) {
-        throw err;
-      }
-      app.listen(3000, '127.0.0.1');
-      debug('Wait connection');
-    });
+    writeFile(statusFile, JSON.stringify(info));
   }
   return {listen};
 }
