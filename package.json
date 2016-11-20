@@ -4,7 +4,7 @@
   "description": "Implement input methods easily for Windows with nodejs",
   "main": "index.js",
   "scripts": {
-    "start": "cd example && cross-env UV_THREADPOOL_SIZE=32 debug=nime:* node server.js",
+    "start": "cd example && cross-env debug=nime:* node server.js",
     "test": "istanbul cover node_modules/mocha/bin/_mocha -- tests --require tests/helpers/chai.js --reporter spec",
     "coveralls": "npm test && cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage"
   },
@@ -13,13 +13,11 @@
   "engines": {
     "node": ">=6"
   },
-  "os": [
-    "win32"
-  ],
   "dependencies": {
+    "body-parser": "^1.15.2",
     "debug": "^2.2.0",
-    "ffi": "^2.0.0",
-    "ref": "^1.3.2"
+    "express": "^4.14.0",
+    "uuid": "^3.0.0"
   },
   "devDependencies": {
     "chai": "^3.5.0",
