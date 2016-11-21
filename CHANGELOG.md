@@ -1,3 +1,13 @@
+<a name="0.4.1"></a>
+## [0.4.1](https://github.com/jessy1092/NIME/compare/v0.4.0...v0.4.1) (2016-11-21)
+
+
+### Bug Fixes
+
+* Prevent publish the unnecessary package([85ca918](https://github.com/jessy1092/NIME/commit/85ca918))
+
+
+
 <a name="0.4.0"></a>
 # [0.4.0](https://github.com/jessy1092/NIME/compare/v0.3.0...v0.4.0) (2016-11-20)
 
