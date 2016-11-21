@@ -52,7 +52,7 @@ function createServer(services = []) {
     const client_id = uuid.v4();
 
     connections[client_id] = {service: null, state: null};
-    debug(`Connections: ${connections}`);
+    debug(`Connections: ${JSON.stringify(connections)}`);
     res.send(client_id);
   });
 
