@@ -14,10 +14,8 @@
     "node": ">=6"
   },
   "dependencies": {
-    "body-parser": "^1.15.2",
     "debug": "^2.2.0",
-    "express": "^4.14.0",
-    "uuid": "^3.0.0"
+    "stdio": "^0.2.7"
   },
   "devDependencies": {
     "chai": "^3.5.0",
